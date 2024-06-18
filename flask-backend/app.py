@@ -18,7 +18,6 @@ def home():
 def tickers():
     data = request.json
     ticker = data.get('ticker', '')
-    # TODO: add defaults
     start_date = data.get('start_date', '2023-01-01')
     end_date = data.get('end_date', '2030-01-01')
     upper_lev = data.get('upper_lev', 5)
@@ -29,7 +28,7 @@ def tickers():
         return {"error": "Ticker not provided"}, 400
     
     try:
-        df = yf.download(ticker, start_date, end_date)['Close']
+        df = yf.download(ticker, start_date, end_date, progress=False, timeout=10)['Close']
         if df.empty:
             return {"error": "Invalid ticker"}, 400
     except Exception as e:
