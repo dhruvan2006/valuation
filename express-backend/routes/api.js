@@ -5,6 +5,6 @@ const router = express.Router();
 router.use('/leverage', require('./leverage'));
 
 // Routes for /api/optimal
-// router.use('/optimal', require('./optimal'));
+router.use('/optimal', require('./optimal'));
 
 module.exports = router;
