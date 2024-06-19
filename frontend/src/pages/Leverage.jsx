@@ -17,7 +17,7 @@ const Leverage = () => {
   useEffect(() => {
     const fetchLastUpdated = async () => {
       try {
-        const response = await axios.get('api/lastUpdated');
+        const response = await axios.get('api/leverage/lastUpdated');
         const date = new Date(response.data['lastUpdated']);
         setLastUpdated(date);
       } catch (error) {

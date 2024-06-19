@@ -22,7 +22,7 @@ const Chart = ({ exchange, assets, name }) => {
       const data = {};
       for (const asset of selectedAssets) {
         try {
-          const response = await axios.get(`/api/tlx/asset/${asset}`);
+          const response = await axios.get(`/api/leverage/tlx/asset/${asset}`);
           data[asset] = response.data;
         } catch (error) {
           console.error(`Error fetching data for ${asset}:`, error);

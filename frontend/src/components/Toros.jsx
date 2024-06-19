@@ -22,7 +22,7 @@ const Toros = ({ assets, name }) => {
       const data = {};
       for (const asset of selectedAssets) {
         try {
-          const response = await axios.get(`api/toros/asset/${asset}`);
+          const response = await axios.get(`api/leverage/toros/asset/${asset}`);
           data[asset] = response.data;
         } catch (error) {
           console.error(`Error fetching data for ${asset}:`, error);

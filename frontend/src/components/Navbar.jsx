@@ -32,12 +32,12 @@ const Navbar = () => {
           </NavLink>
         </li>
         <li>
-          <a href="https://modernportfoliotheory.streamlit.app/" target='_blank' className="text-sm text-zinc-400 font-semibold hover:text-white transition duration-200">
+          <a href="/mpt" className="text-sm text-zinc-400 font-semibold hover:text-white transition duration-200">
             MPT
           </a>
         </li>
         <li>
-          <a href="https://btcfairvalue.streamlit.app/" target='_blank' className="text-sm text-zinc-400 font-semibold hover:text-white transition duration-200">
+          <a href="/btc-fv" className="text-sm text-zinc-400 font-semibold hover:text-white transition duration-200">
             Fair Value
           </a>
         </li>
