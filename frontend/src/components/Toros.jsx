@@ -143,11 +143,11 @@ const Toros = ({ assets, name }) => {
 
   return (
     <div className='flex flex-col flex-grow p-4 mb-10 bg-darkestgray shadow-md rounded-xl'>
-      <div className='flex flex-row justify-between items-center ps-3 mb-2'>
+      <div className='flex flex-col md:flex-row justify-between items-center ps-3 mb-2'>
         <h1 className='text-gray-100 font-semibold text-xl'>Toros Levered {name}</h1>
-        <div className='flex items-center justify-between bg-darkergray py-2 pl-4 rounded-md'>
+        <div className='flex flex-wrap items-center justify-between bg-darkergray py-2 pl-4 rounded-md'>
           {assets.map(asset => (
-            <div key={asset} className='mr-4 flex items-center'>
+            <div key={asset} className='mr-4 flexitems-center'>
               <input
                 type="checkbox"
                 name={asset}

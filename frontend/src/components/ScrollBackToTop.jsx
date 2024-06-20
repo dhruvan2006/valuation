@@ -10,7 +10,7 @@ const ScrollBackToTop = () => {
   };
   
   return (
-    <button className='fixed bottom-3 right-3 rounded-full bg-zinc-800 hover:bg-zinc-900 p-2 border-gray-700 border shadow-md shadow-gray-800/25' onClick={scrollToTop}>
+    <button className='fixed bottom-3 right-3 rounded-full bg-zinc-800 hover:bg-zinc-900 p-2 border-gray-700 border shadow-md shadow-gray-800/25 z-40' onClick={scrollToTop}>
       <ChevronUpIcon className='h-8 w-8 text-gray-200' />
     </button>
   );

@@ -56,7 +56,7 @@ const Leverage = () => {
   }  
 
   return (
-    <div className='mx-16'>
+    <div className='mx-4 md:mx-16'>
       <div className='text-center mb-4'>
         <h1 className='text-white text-4xl font-semibold'>Leveraged Tokens Comparision</h1>
         <p className='text-zinc-300'>Last updated: <span className='font-semibold'>{lastUpdated ? timeAgo(lastUpdated) : 'Loading...'}</span></p>
