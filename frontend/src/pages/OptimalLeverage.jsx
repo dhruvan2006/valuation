@@ -4,6 +4,7 @@ import Plot from 'react-plotly.js';
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import DatePicker from '../components/DatePicker';
 import NumberInput from '../components/NumberInput';
+import WarningMessage from '../components/WarningMessage';
 
 const options = [
   "BTC",
@@ -185,10 +186,7 @@ const OptimalLeverage = () => {
       </div>
 
       {/* Warning */}
-      <div className='bg-yellow-500 text-black w-full rounded-lg p-4 mb-6'>
-        <h2 className='font-bold text-lg mb-1'>Warning</h2>
-        <p className='text-sm'>The formula used is <span className='font-semibold'>valid</span> for stock markets only for <span className='font-semibold'>low levels of leverage</span> (up to about 3)</p>
-      </div>
+      <WarningMessage />
 
       {/* Custom ticker */}
       <div className='bg-zinc-900 p-5 rounded-lg mb-10'>
@@ -256,7 +254,7 @@ const OptimalLeverage = () => {
           </div>
         </div>
 
-        <div className='flex flex-row space-x-5 mt-5'>
+        <div className='flex flex-row space-x-5 mt-5 w-full'>
           <Plot
             className='w-full h-96'
             data={[
