@@ -10,6 +10,8 @@ const Toros = ({ assets, name }) => {
   const [sortinoRatios, setSortinoRatios] = useState({});
   const [omegaRatios, setOmegaRatios] = useState({});
 
+  console.log(assetData);
+
   const handleCheckboxChange = (event) => {
     const { name, checked } = event.target;
     setSelectedAssets((prevSelectedAssets) => 
@@ -22,7 +24,7 @@ const Toros = ({ assets, name }) => {
       const data = {};
       for (const asset of selectedAssets) {
         try {
-          const response = await axios.get(`api/leverage/toros/asset/${asset}`);
+          const response = await axios.get(`/api/leverage/toros/asset/${asset}`);
           data[asset] = response.data;
         } catch (error) {
           console.error(`Error fetching data for ${asset}:`, error);

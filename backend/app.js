@@ -13,13 +13,13 @@ const getTimestamp = () => {
 app.use(cors());
 
 // Serve static files for React frontend
-app.use(express.static(path.join(__dirname, 'build')));
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // Prepend /api to all routes
 app.use('/api', require('./routes/api'))
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname + '/build/index.html'));
+    res.sendFile(path.join(__dirname + '/dist/index.html'));
 })
 
 app.listen(port, () => {

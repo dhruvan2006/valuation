@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { SunIcon, MoonIcon } from '@heroicons/react/24/solid';
-import GitHubIcon from '../github-mark-white.svg';
+import GitHubIcon from '../assets/github-mark-white.svg';
 
 const Navbar = () => {
   const [isDark, setIsDark] = useState(true);

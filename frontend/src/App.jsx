@@ -6,12 +6,11 @@ import ScrollBackToTop from './components/ScrollBackToTop';
 import OptimalLeverage from './pages/OptimalLeverage';
 import NotFound from './pages/NotFound';
 
-function App() {
-  
+const App = () => {
   return (
     <BrowserRouter className='bg-black md:px-32'>
       <Navbar />
-      <div className='mt-24' />
+      <div className='mt-20' />
       <ScrollBackToTop />
       <Routes>
         <Route path="/" element={<Leverage />} />
