@@ -2,12 +2,38 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Plot from 'react-plotly.js';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
+import DatePicker from '../components/DatePicker';
 
-const indicators = ['AVIV Z-Score', 'Mayer Multiple Z']
+const indicators = ['AVIV Z-Score', 'SOPR 7D-EMA', 'Difficulty Multiple', 'VDD Multiple', 'Mayer Multiple Z']
+
+const getTodayAsString = () => {
+  const today = new Date();
+  let year = today.getFullYear();
+  let month = (today.getMonth() + 1).toString().padStart(2, '0');
+  let day = today.getDate().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
 
 const Valuation = () => {
+  const [bitcoinData, setBitcoinData] = useState({});
   const [zScoreData, setZScoreData] = useState({});
+  const [startDate, setStartDate] = useState('2023-01-01');
+  const [endDate, setEndDate] = useState(getTodayAsString());
   const [indicatorData, setIndicatorData] = useState([]);
+
+  // Fetch Bitcoin Data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('/api/valuation/bitcoin');
+        setBitcoinData(response.data);
+      } catch (error) {
+        console.error('Error fetching z scores:', error);
+      }
+    }
+    fetchData();
+  }, []);
 
   // Fetch Z Score Data
   useEffect(() => {
@@ -48,6 +74,16 @@ const Valuation = () => {
     fetchData();
   }, []);
 
+  const toggleFullscreen = (plotId) => {
+    const element = document.getElementById(plotId);
+    if (!document.fullscreenElement) {
+      element.requestFullscreen().catch((err) => {
+        console.error('Error attempting to enable full-screen mode:', err.message);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   return (
     <>
@@ -57,30 +93,57 @@ const Valuation = () => {
           <h1 className='text-white text-4xl font-semibold'>Valuation</h1>
           <p className='text-zinc-300'>Combine various stationary time series together to achieve a full cycle indicator for Bitcoin</p>
         </div>
-        <div className='text-center w-full'>
-          <Plot
-            className='w-full'
-            data={[
-              {
-                x: Object.keys(zScoreData),
-                y: Object.values(zScoreData),
-                type: 'scatter',
-                mode: 'lines',
-                marker: { color: 'orange' }
-              }
-            ]}
-            layout={{
-              title: 'Ultimate Bitcoin Valuation',
-              xaxis: { title: 'Date' },
-              yaxis: { title: 'Avg Z Score' },
-              plot_bgcolor: 'rgb(39 39 42)',
-              paper_bgcolor: 'rgb(39 39 42)',
-              font: {
-                color: '#ffffff'
-              },
-            }}
-            useResizeHandler={true}
-          />  
+        <div className='text-center w-full h-[30rem] relative mb-4'>
+          <div className='p-2 absolute top-0 right-0 z-10'>
+            <ArrowsPointingOutIcon className='h-6 w-6  text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen('main-plot')} />
+          </div>
+          <div className='w-full h-full' id='main-plot'>
+            <Plot
+              id='main-plot'
+              className='w-full h-full'
+              data={[
+                {
+                  name: 'BTC',
+                  x: bitcoinData.dates,
+                  y: bitcoinData.values,
+                  type: 'scatter',
+                  mode: 'lines',
+                  marker: { color: 'white' },
+                  yaxis: 'y'
+                },
+                {
+                  name: 'Z Score',
+                  x: Object.keys(zScoreData),
+                  y: Object.values(zScoreData),
+                  type: 'scatter',
+                  mode: 'lines',
+                  marker: { color: 'orange' },
+                  yaxis: 'y2'
+                }
+              ]}
+              layout={{
+                title: 'Ultimate Bitcoin Valuation',
+                xaxis: { title: 'Date' },
+                yaxis: { title: 'Bitcoin', type: 'log', side: 'left' },
+                yaxis2: { title: 'Avg Z Score', overlaying: 'y', side: 'right' },
+                plot_bgcolor: 'rgb(39 39 42)',
+                paper_bgcolor: 'rgb(39 39 42)',
+                font: {
+                  color: '#ffffff'
+                },
+                showlegend: false
+              }}
+              config={{
+                displayModeBar: false,
+                displaylogo: false,
+              }}
+              useResizeHandler={true}
+            />
+          </div>
+        </div>
+        <div className='flex flex-col sm:flex-row justify-center items-center w-full gap-4 md:w-3/4 mx-auto'>
+          <DatePicker label="Start Date:" selectedDate={startDate} onChange={setStartDate} />
+          <DatePicker label="End Date:" selectedDate={endDate} onChange={setEndDate} />
         </div>
       </div>
 
@@ -90,36 +153,53 @@ const Valuation = () => {
           <h2 className='font-semibold text-white text-2xl'>Indicators</h2>
           <p className='text-zinc-300 text-sm'>The various components of the above metric (with links to their source)</p>
         </div>
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
           {indicatorData.map((indicator) => (
-            <div key={indicator.name} className='bg-zinc-900 border-zinc-700 border rounded-sm text-zinc-200 text-center divide-y divide-zinc-700 hover:shadow-lg hover:shadow-zinc-700/15'>
+            <div key={indicator.name} className='bg-zinc-900 border-zinc-700 border rounded-sm text-zinc-200 text-center divide-y divide-zinc-700 hover:shadow-md hover:shadow-zinc-700/25'>
               <div className='p-4 flex justify-between items-center'>
                 <img alt='CheckOnChain Logo' src='/checkonchain.png' className='h-5 w-5' />
                 <h2 className='font-semibold'>{indicator.name}</h2>
-                <ArrowsPointingOutIcon className='h-5 w-5 text-zinc-300 hover:text-white transition duration-200'  onClick={() => toggleFullscreen(indicator.name)} />
+                <ArrowsPointingOutIcon className='h-5 w-5 text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen(`plot-${indicator.name}`)} />
               </div>
-              <div className='w-full h-96'>
+              <div className='w-full h-96 mb-3' id={`plot-${indicator.name}`}>
                 <Plot
                   className='w-full h-full'
                   data={[
                     {
+                      name: 'BTC',
+                      x: bitcoinData.dates,
+                      y: bitcoinData.values,
+                      type: 'scatter',
+                      mode: 'lines',
+                      marker: { color: 'white' },
+                      yaxis: 'y'
+                    },
+                    {
+                      name: indicator.name,
                       x: indicator.dates,
                       y: indicator.values,
                       type: 'scatter',
                       mode: 'lines',
-                      marker: { color: 'orange' }
+                      marker: { color: 'orange' },
+                      yaxis: 'y2'
                     }
                   ]}
                   layout={{
                     title: indicator.title,
                     xaxis: { title: 'Date' },
-                    yaxis: { title: 'Avg Z Score' },
+                    yaxis: { title: 'Bitcoin' , type: 'log', side: 'left' },
+                    yaxis2: { title: indicator.name, overlaying: 'y', side: 'right' },
                     plot_bgcolor: 'rgb(24, 24, 27)',
                     paper_bgcolor: 'rgb(24, 24, 27)',
                     font: {
                       color: '#ffffff'
                     },
-                    margin: { t: 50, r: 50, b: 60, l: 60 }
+                    margin: { t: 50, r: 60, b: 40, l: 60 },
+                    showlegend: false
+                  }}
+                  config={{
+                    displayModeBar: false,
+                    displaylogo: false,
                   }}
                   useResizeHandler={true}
                 />

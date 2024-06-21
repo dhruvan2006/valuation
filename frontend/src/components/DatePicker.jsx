@@ -1,6 +1,6 @@
 const DatePicker = ({ label, selectedDate, onChange }) => {
   return (
-    <div className="flex flex-col gap-y-2">
+    <div className="flex flex-col gap-y-2 flex-1 w-full">
       <label className="text-white ml-1 text-sm">{label}</label>
       <div className="relative">
         <input
