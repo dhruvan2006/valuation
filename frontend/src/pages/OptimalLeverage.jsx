@@ -233,7 +233,7 @@ const OptimalLeverage = () => {
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
                 className='w-full p-2 rounded-lg bg-zinc-800 text-white border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-500'
-                placeholder="Custom tickers are allowed"
+                placeholder='BTC'
                 />
               {showDropdown && filteredOptions.length > 0 && (
                 <ul className='absolute mt-1 w-full bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg z-20 max-h-64 overflow-auto'>

@@ -141,10 +141,10 @@ const Valuation = () => {
             />
           </div>
         </div>
-        <div className='flex flex-col sm:flex-row justify-center items-center w-full gap-4 md:w-3/4 mx-auto'>
-          <DatePicker label="Start Date:" selectedDate={startDate} onChange={setStartDate} />
-          <DatePicker label="End Date:" selectedDate={endDate} onChange={setEndDate} />
-        </div>
+          {/* <div className='flex flex-col sm:flex-row justify-center items-center w-full gap-4 md:w-3/4 mx-auto'>
+            <DatePicker label="Start Date:" selectedDate={startDate} onChange={setStartDate} />
+            <DatePicker label="End Date:" selectedDate={endDate} onChange={setEndDate} />
+          </div> */}
       </div>
 
       {/* Indicators' plots */}
