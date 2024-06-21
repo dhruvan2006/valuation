@@ -16,7 +16,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="text-white max-w-5xl bg-black bg-opacity-50 backdrop-blur-md fixed top-0 md:top-4 left-0 right-0 z-50 md:rounded-2xl mx-auto px-4 md:px-6 py-4 md:py-2 flex justify-between items-center border-zinc-700 border shadow-md shadow-zinc-800/25">
+    <nav className="text-white max-w-5xl bg-black bg-opacity-75 md:bg-opacity-50 backdrop-blur-md fixed top-0 md:top-4 left-0 right-0 z-50 md:rounded-2xl mx-auto px-4 md:px-6 py-4 md:py-2 flex justify-between items-center border-zinc-700 border shadow-md shadow-zinc-800/25">
       <NavLink to='/' className="font-semibold text-white">
         Dhruvan
       </NavLink>
@@ -27,7 +27,7 @@ const Navbar = () => {
           <Bars3Icon className='h-7 w-7 text-white' />
         )}
         </div>
-      <ul className={`items-center pb-6 pt-3 px-2 border border-zinc-700 bg-opacity-75 backdrop-blur-md md:p-0 md:border-none md:flex md:justify-center md:space-x-10 ${isMobileMenuOpen ? 'block' : 'hidden'} md:flex-row absolute md:static top-[3.3rem] left-0 w-full md:w-auto bg-black md:bg-transparent`}>
+      <ul className={`items-center pb-6 pt-3 px-2 border border-zinc-700 bg-opacity-75 backdrop-blur-md md:bg-opacity-100 md:backdrop-blur-0 md:p-0 md:border-none md:flex md:justify-center md:space-x-10 ${isMobileMenuOpen ? 'block' : 'hidden'} md:flex-row absolute md:static top-[3.8rem] left-0 w-full md:w-auto bg-black md:bg-transparent`}>
         {/* <li className='md:hidden fixed top-6 right-6'>
           <XMarkIcon className='h-7 w-7 text-white' onClick={toggleMobileMenu} />
         </li> */}
