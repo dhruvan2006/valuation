@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const cheerio = require('cheerio');
+require('dotenv').config();
 
 const router = express.Router();
 router.use(bodyParser.json());
@@ -113,8 +114,6 @@ async function fetchLookintobitcoin(name, url, human_url) {
         const pathSegments = url.split('/');
         const indicator = pathSegments[3];
 
-        console.log(indicator)
-
         const payload = {
             "output":"chart.figure",
             "outputs": {
@@ -215,6 +214,71 @@ async function fetchChainexposed(name, url) {
     }
 }
 
+let d = "nig";
+
+async function fetchCryptoquant(name, url, human_url) {
+    try {
+        const email = process.env.CRYPTOQUANT_EMAIL;
+        const password = process.env.CRYPTOQUANT_PASSWORD;
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'Host': 'live-api.cryptoquant.com',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0',
+            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive'
+        };
+        
+        const response = await axios.post(
+            "https://live-api.cryptoquant.com/api/v1/sign-in",
+            { "email": email, "password": password },
+            { headers: headers }
+        );
+        const accessToken = response.data.accessToken;
+
+        const dashboardResponse = await axios.get(
+            url,
+            { headers: {...headers, 'Authorization': `Bearer ${accessToken}` }}
+        );
+
+        const result = dashboardResponse.data.data.result;
+        const columns = result.columns;
+        const results = result.results;
+        
+        const index = columns.findIndex(item => item.name === name);
+        if (index === -1) {
+            throw new Error("Indicator name is invalid")
+        }
+
+        const dates = results.map(row => row[0]).map(normalizeDate);
+        const values = results.map(row => row[index]);
+        const mean = values.reduce((acc, val) => acc + val, 0) / values.length;
+        const stdDev = Math.sqrt(values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / values.length);
+        const zScores = values.map(value => (value - mean) / stdDev);
+
+        dates.forEach((date, index) => {
+            if (!combinedData[date]) {
+                combinedData[date] = [];
+            }
+            combinedData[date].push(zScores[index]);
+        })
+
+        storedData[name] = {
+            name: name,
+            dates: dates,
+            values: values,
+            zScores: zScores,
+            source: 'Cryptoquant',
+            url: human_url
+        };
+
+        console.log(`{${getTimestamp()}} Fetched data for ${name} ${url}`)
+    } catch (error) {
+        console.error(`{${getTimestamp()}} Error processing Cryptoquant: ${error}`);
+    }
+}
+
 // Fetch woocharts
 const woochartsIndicators = [
     ["index", "https://woocharts.com/bitcoin-macro-oscillator/"], 
@@ -225,10 +289,7 @@ woochartsIndicators.forEach(([name, url]) => fetchWoocharts(name, url));
 // Fetch checkonchain indicators
 const checkonchainIndicators = [
     ['https://charts.checkonchain.com/btconchain/pricing/pricing_mvrv_aviv_zscore/pricing_mvrv_aviv_zscore_light.html', 'AVIV Z-Score'],
-    ['https://charts.checkonchain.com/btconchain/realised/realised_sopr/realised_sopr_light.html', 'SOPR 7D-EMA'],
-    ['https://charts.checkonchain.com/btconchain/mining/mining_difficultyregression/mining_difficultyregression_light.html', 'Difficulty Multiple'],
-    ['https://charts.checkonchain.com/btconchain/lifespan/lifespan_vddmultiple/lifespan_vddmultiple_light.html', 'VDD Multiple'],
-    ['https://charts.checkonchain.com/btconchain/pricing/pricing_mayermultiple_zscore/pricing_mayermultiple_zscore_light.html', 'Mayer Multiple Z']
+    ['https://charts.checkonchain.com/btconchain/lifespan/lifespan_vddmultiple/lifespan_vddmultiple_light.html', 'VDD Multiple']
 ]
 checkonchainIndicators.forEach(([ url, indicator ]) => fetchCheckOnChain(url, indicator, storedData, combinedData));
 
@@ -243,6 +304,12 @@ const chainexposedIndicators = [
     ["MVRV", "https://chainexposed.com/XthMVRVShortTermHolderAddress.html"]
 ]
 chainexposedIndicators.forEach(([ name, url ]) => fetchChainexposed(name, url));
+
+// Fetch cryptoquant
+const cryptoquantIndicators = [
+    ["Adjusted_MVRV", "https://live-api.cryptoquant.com/api/v1/dashboard-entities/65b6f2f216020946ad992977/analytics/6463b524885a7d37a1630f8b", "https://cryptoquant.com/community/dashboard/65793eec53cdc86cfe167b91"]
+]
+cryptoquantIndicators.forEach(([ name, url, human_url]) => fetchCryptoquant(name, url, human_url));
 
 // Fetch bitcoin price
 bitcoinData = {}
