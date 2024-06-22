@@ -4,7 +4,7 @@ import Plot from 'react-plotly.js';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
 import DatePicker from '../components/DatePicker';
 
-const indicators = ['AVIV Z-Score', 'SOPR 7D-EMA', 'Difficulty Multiple', 'VDD Multiple', 'Mayer Multiple Z']
+const indicators = ['AVIV Z-Score', 'SOPR 7D-EMA', 'Difficulty Multiple', 'VDD Multiple', 'Mayer Multiple Z', 'index', 'mvrv_z', 'Oscillator', 'MVRV'];
 
 const getTodayAsString = () => {
   const today = new Date();
@@ -157,8 +157,16 @@ const Valuation = () => {
           {indicatorData.map((indicator) => (
             <div key={indicator.name} className='bg-zinc-900 border-zinc-700 border rounded-sm text-zinc-200 text-center divide-y divide-zinc-700 hover:shadow-md hover:shadow-zinc-700/25'>
               <div className='p-4 flex justify-between items-center'>
-                <img alt='CheckOnChain Logo' src='/checkonchain.png' className='h-5 w-5' />
-                <h2 className='font-semibold'>{indicator.name}</h2>
+                {indicator.source === 'CheckOnChain' ? (
+                  <a href={indicator.url} target='_blank' referrerPolicy='no-referrer'><img alt='CheckOnChain Logo' src='/checkonchain.png' className='h-6 w-6' /></a>
+                ) : indicator.source === 'WooCharts' ? (
+                  <a href={indicator.url} target='_blank' referrerPolicy='no-referrer'><img alt='WooCharts Logo' src='/woocharts.png' className='h-6 w-6' /></a>
+                ) : indicator.source === 'LookIntoBitcoin' ? (
+                  <a href={indicator.url} target='_blank' referrerPolicy='no-referrer'><img alt='LookIntoBitcoin Logo' src='/lookintobitcoin.png' className='h-6 w-6' /></a>
+                ) : (
+                  <a href={indicator.url} target='_blank' referrerPolicy='no-referrer'><img alt='ChainExposed Logo' src='/chainexposed.png' className='h-6 w-6' /></a>
+                )}
+                <h2 className='font-semibold'><a href={indicator.url} target='_blank' referrerPolicy='no-referrer'>{indicator.name}</a></h2>
                 <ArrowsPointingOutIcon className='h-5 w-5 text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen(`plot-${indicator.name}`)} />
               </div>
               <div className='w-full h-96 mb-3' id={`plot-${indicator.name}`}>
@@ -180,7 +188,7 @@ const Valuation = () => {
                       y: indicator.values,
                       type: 'scatter',
                       mode: 'lines',
-                      marker: { color: 'orange' },
+                      marker: { color: indicator.source === 'CheckOnChain' ? 'orange' :  indicator.source === 'WooCharts' ? 'cd0fcd' : indicator.source === 'LookIntoBitcoin' ? '19a42e' : 'b64171' },
                       yaxis: 'y2'
                     }
                   ]}

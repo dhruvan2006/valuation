@@ -10,8 +10,6 @@ const Toros = ({ assets, name }) => {
   const [sortinoRatios, setSortinoRatios] = useState({});
   const [omegaRatios, setOmegaRatios] = useState({});
 
-  console.log(assetData);
-
   const handleCheckboxChange = (event) => {
     const { name, checked } = event.target;
     setSelectedAssets((prevSelectedAssets) => 
