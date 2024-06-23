@@ -1,9 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const bodyParser = require('body-parser');
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+// Increase limit for POST /api/valuation/cryptoquant
+app.use(bodyParser.json({limit: '200mb'}));
 
 const getTimestamp = () => {
     return new Date().toUTCString();
