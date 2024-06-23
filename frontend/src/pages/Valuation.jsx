@@ -4,7 +4,7 @@ import Plot from 'react-plotly.js';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
 import DatePicker from '../components/DatePicker';
 
-const indicators = ['AVIV Z-Score', 'VDD Multiple', 'index', 'mvrv_z', 'Oscillator', 'MVRV', 'Adjusted_MVRV'];
+const indicators = ['AVIV Z-Score', 'VDD Multiple', 'index', 'mvrv_z', 'Oscillator', 'MVRV'];//, 'Adjusted_MVRV'];
 
 const getTodayAsString = () => {
   const today = new Date();
@@ -18,7 +18,7 @@ const getTodayAsString = () => {
 const Valuation = () => {
   const [bitcoinData, setBitcoinData] = useState({});
   const [zScoreData, setZScoreData] = useState({});
-  const [startDate, setStartDate] = useState('2023-01-01');
+  const [startDate, setStartDate] = useState('2016-01-01');
   const [endDate, setEndDate] = useState(getTodayAsString());
   const [indicatorData, setIndicatorData] = useState([]);
 
@@ -26,27 +26,27 @@ const Valuation = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/valuation/bitcoin');
+        const response = await axios.get('/api/valuation/bitcoin', { params: { startDate, endDate }});
         setBitcoinData(response.data);
       } catch (error) {
         console.error('Error fetching z scores:', error);
       }
     }
     fetchData();
-  }, []);
+  }, [startDate, endDate]);
 
   // Fetch Z Score Data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/valuation/');
+        const response = await axios.get('/api/valuation/', { params: { startDate, endDate }});
         setZScoreData(response.data);
       } catch (error) {
         console.error('Error fetching z scores:', error);
       }
     }
     fetchData();
-  }, []);
+  }, [startDate, endDate]);
 
   // Fetch individual indicator data
   useEffect(() => {
@@ -54,7 +54,7 @@ const Valuation = () => {
       try {
         const requests = indicators.map(async (indicator) => {
           const encodedIndicator = encodeURIComponent(indicator);
-          const response = await axios.get(`/api/valuation/indicator/${encodedIndicator}`);
+          const response = await axios.get(`/api/valuation/indicator/${encodedIndicator}`, { params: { startDate, endDate }});
           return response.data;
         });
 
@@ -72,7 +72,7 @@ const Valuation = () => {
     }
 
     fetchData();
-  }, []);
+  }, [startDate, endDate]);
 
   const toggleFullscreen = (plotId) => {
     const element = document.getElementById(plotId);
@@ -141,10 +141,10 @@ const Valuation = () => {
             />
           </div>
         </div>
-          {/* <div className='flex flex-col sm:flex-row justify-center items-center w-full gap-4 md:w-3/4 mx-auto'>
+          <div className='flex flex-col sm:flex-row justify-center items-center w-full gap-4 md:w-3/4 mx-auto'>
             <DatePicker label="Start Date:" selectedDate={startDate} onChange={setStartDate} />
             <DatePicker label="End Date:" selectedDate={endDate} onChange={setEndDate} />
-          </div> */}
+          </div>
       </div>
 
       {/* Indicators' plots */}

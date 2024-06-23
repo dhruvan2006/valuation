@@ -15,14 +15,13 @@ const getTimestamp = () => {
 };
 
 let storedData = {};
-let combinedData = {};
 
 const normalizeDate = (dateString) => {
     const date = new Date(dateString);
     return date.toISOString().split('T')[0]; // This gives only the date part in yyyy-mm-dd
 };
 
-async function fetchCheckOnChain(url, indicator_column_name, storedData, combinedData) {
+async function fetchCheckOnChain(url, indicator_column_name, storedData) {
     try {
         const response = await axios.get(url);
         const htmlContent = response.data;
@@ -45,25 +44,15 @@ async function fetchCheckOnChain(url, indicator_column_name, storedData, combine
                     if (jsonItem.name === indicator_column_name) {
                         const dates = jsonItem.x.map(normalizeDate);
                         const values = jsonItem.y;
-                        const mean = values.reduce((acc, val) => acc + val, 0) / values.length;
-                        const stdDev = Math.sqrt(values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / values.length);
-                        const zScores = values.map(value => (value - mean) / stdDev);
-
-                        dates.forEach((date, index) => {
-                            if (!combinedData[date]) {
-                                combinedData[date] = [];
-                            }
-                            combinedData[date].push(zScores[index]);
-                        })
 
                         storedData[jsonItem.name] = {
                             name: jsonItem.name,
                             dates: dates,
                             values: values,
-                            zScores: zScores,
                             source: 'CheckOnChain',
                             url: url
                         };
+
                         console.log(`{${getTimestamp()}} Fetched data for ${url}`)
                     }
                 });
@@ -78,7 +67,7 @@ async function fetchCheckOnChain(url, indicator_column_name, storedData, combine
     }
 }
 
-async function fetchWoocharts(name, url) {
+async function fetchWoocharts(name, url, storedData) {
     try {
         const response = await axios.get("https://woocharts.com/bitcoin-macro-oscillator/data/chart.json?1718986908477");
         const json_data = response.data;
@@ -86,22 +75,11 @@ async function fetchWoocharts(name, url) {
         const col = json_data[name];
         const dates = col.x.map(normalizeDate);
         const values = col.y;
-        const mean = values.reduce((acc, val) => acc + val, 0) / values.length;
-        const stdDev = Math.sqrt(values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / values.length);
-        const zScores = values.map(value => (value - mean) / stdDev);
-
-        dates.forEach((date, index) => {
-            if (!combinedData[date]) {
-                combinedData[date] = [];
-            }
-            combinedData[date].push(zScores[index]);
-        })
 
         storedData[name] = {
             name: name,
             dates: dates,
             values: values,
-            zScores: zScores,
             source: 'WooCharts',
             url: url
         };
@@ -112,7 +90,7 @@ async function fetchWoocharts(name, url) {
     }
 }
 
-async function fetchLookintobitcoin(name, url, human_url) {
+async function fetchLookintobitcoin(name, url, human_url, storedData) {
     try {
         const pathSegments = url.split('/');
         const indicator = pathSegments[3];
@@ -138,22 +116,11 @@ async function fetchLookintobitcoin(name, url, human_url) {
             if (plot.name === name) {
                 const dates = plot.x.map(normalizeDate);
                 const values = plot.y;
-                const mean = values.reduce((acc, val) => acc + val, 0) / values.length;
-                const stdDev = Math.sqrt(values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / values.length);
-                const zScores = values.map(value => (value - mean) / stdDev);
-
-                dates.forEach((date, index) => {
-                    if (!combinedData[date]) {
-                        combinedData[date] = [];
-                    }
-                    combinedData[date].push(zScores[index]);
-                })
 
                 storedData[name] = {
                     name: name,
                     dates: dates,
                     values: values,
-                    zScores: zScores,
                     source: 'LookIntoBitcoin',
                     url: human_url
                 };
@@ -165,7 +132,7 @@ async function fetchLookintobitcoin(name, url, human_url) {
     }
 }
 
-async function fetchChainexposed(name, url) {
+async function fetchChainexposed(name, url, storedData) {
     try {
         const response = await axios.get(url);
         const data = response.data;
@@ -191,22 +158,11 @@ async function fetchChainexposed(name, url) {
 
         const dates = JSON.parse(trace1Match[1]).map(normalizeDate);
         const values = JSON.parse(trace1Match[2]).map(val => parseFloat(val));
-        const mean = values.reduce((acc, val) => acc + val, 0) / values.length;
-        const stdDev = Math.sqrt(values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / values.length);
-        const zScores = values.map(value => (value - mean) / stdDev);
-
-        dates.forEach((date, index) => {
-            if (!combinedData[date]) {
-                combinedData[date] = [];
-            }
-            combinedData[date].push(zScores[index]);
-        })
 
         storedData[name] = {
             name: name,
             dates: dates,
             values: values,
-            zScores: zScores,
             source: 'ChainExposed',
             url: url
         };
@@ -222,37 +178,30 @@ const woochartsIndicators = [
     ["index", "https://woocharts.com/bitcoin-macro-oscillator/"], 
     ["mvrv_z", "https://woocharts.com/bitcoin-mvrv-z/"]
 ]
-woochartsIndicators.forEach(([name, url]) => fetchWoocharts(name, url));
+woochartsIndicators.forEach(([name, url]) => fetchWoocharts(name, url, storedData));
 
 // Fetch checkonchain indicators
 const checkonchainIndicators = [
     ['https://charts.checkonchain.com/btconchain/pricing/pricing_mvrv_aviv_zscore/pricing_mvrv_aviv_zscore_light.html', 'AVIV Z-Score'],
     ['https://charts.checkonchain.com/btconchain/lifespan/lifespan_vddmultiple/lifespan_vddmultiple_light.html', 'VDD Multiple']
 ]
-checkonchainIndicators.forEach(([ url, indicator ]) => fetchCheckOnChain(url, indicator, storedData, combinedData));
+checkonchainIndicators.forEach(([ url, indicator ]) => fetchCheckOnChain(url, indicator, storedData));
 
 // Fetch lookintobitcoin indicators
 const lookintobitcoinIndicators = [
     ["Oscillator", "https://www.lookintobitcoin.com/django_plotly_dash/app/pi_cycle_top_bottom_indicator/_dash-update-component", "https://www.lookintobitcoin.com/charts/pi-cycle-top-bottom-indicator/"]
 ]
-lookintobitcoinIndicators.forEach(([ name, url, human_url]) => fetchLookintobitcoin(name, url, human_url));
+lookintobitcoinIndicators.forEach(([ name, url, human_url]) => fetchLookintobitcoin(name, url, human_url, storedData));
 
 // Fetch chainexposed indicators
 const chainexposedIndicators = [
     ["MVRV", "https://chainexposed.com/XthMVRVShortTermHolderAddress.html"]
 ]
-chainexposedIndicators.forEach(([ name, url ]) => fetchChainexposed(name, url));
-
-// Fetch cryptoquant
-// const cryptoquantIndicators = [
-//     ["Adjusted_MVRV", "https://live-api.cryptoquant.com/api/v1/dashboard-entities/65b6f2f216020946ad992977/analytics/6463b524885a7d37a1630f8b", "https://cryptoquant.com/community/dashboard/65793eec53cdc86cfe167b91"]
-// ]
-// cryptoquantIndicators.forEach(([ name, url, human_url]) => fetchCryptoquant(name, url, human_url));
+chainexposedIndicators.forEach(([ name, url ]) => fetchChainexposed(name, url, storedData));
 
 // Fetch bitcoin price
 bitcoinData = {}
-bitcoinCombined = {}
-fetchCheckOnChain('https://charts.checkonchain.com/btconchain/pricing/pricing_mayermultiple_zscore/pricing_mayermultiple_zscore_light.html', 'Price', bitcoinData, bitcoinCombined)
+fetchCheckOnChain('https://charts.checkonchain.com/btconchain/pricing/pricing_mayermultiple_zscore/pricing_mayermultiple_zscore_light.html', 'Price', bitcoinData);
 
 // Receive cryptoquant
 router.post('/cryptoquant', (req, res) => {
@@ -261,22 +210,11 @@ router.post('/cryptoquant', (req, res) => {
     indicators.forEach(({ name, data, human_url }) => {
         const dates = data.map(row => normalizeDate(row.date));
         const values = data.map(row => row.value);
-        const mean = values.reduce((acc, val) => acc + val, 0) / values.length;
-        const stdDev = Math.sqrt(values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / values.length);
-        const zScores = values.map(value => (value - mean) / stdDev);
-
-        dates.forEach((date, index) => {
-            if (!combinedData[date]) {
-                combinedData[date] = [];
-            }
-            combinedData[date].push(zScores[index]);
-        })
 
         storedData[name] = {
             name: name,
             dates: dates,
             values: values,
-            zScores: zScores,
             source: 'Cryptoquant',
             url: human_url
         };
@@ -288,17 +226,55 @@ router.post('/cryptoquant', (req, res) => {
 });
 
 router.get('/bitcoin', (req, res) => {
-    res.json(bitcoinData.Price);
+    const { startDate, endDate } = req.query;
+
+    const dates = bitcoinData.Price.dates;
+    const values = bitcoinData.Price.values;
+
+    const filteredByStartDates = startDate ? dates.filter(date => date >= startDate) : dates; 
+    const filteredDates = endDate ? filteredByStartDates.filter(date => date <= endDate) : filteredByStartDates;
+
+    const filteredValues = filteredDates.map(date => {
+        const index = dates.indexOf(date);
+        return values[index];
+    })
+
+    res.json({ dates: filteredDates, values: filteredValues });
 });
 
 router.get('/', (req, res) => {
-    let averagedData = {};
+    const { startDate, endDate } = req.query;
+    let dateMap = {};
 
-    for (const date in combinedData) {
-        const zScores = combinedData[date];
+    for (const indicatorName in storedData) {
+        const indicatorData = storedData[indicatorName];
+        const values = indicatorData.values;
+        const dates = indicatorData.dates;
+
+        const mean = values.reduce((acc, val) => acc + val, 0) / values.length;
+        const stdDev = Math.sqrt(values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / values.length);
+        const zScores = values.map(value => (value - mean) / stdDev);
+        
+        dates.forEach((date, index) => {
+            if (!dateMap[date]) {
+                dateMap[date] = [];
+            }
+            dateMap[date].push(zScores[index]);
+        });
+    }
+
+    let filteredDates = Object.keys(dateMap).filter(date => {
+        if (startDate && date < startDate) return false;
+        if (endDate && date > endDate) return false;
+        return true;
+    });
+
+    let averagedData = {};
+    filteredDates.forEach(date => {
+        const zScores = dateMap[date];
         const avgZScore = zScores.reduce((acc, val) => acc + val, 0) / zScores.length;
         averagedData[date] = avgZScore;
-    }
+    });
 
     res.json(averagedData);
 });
@@ -307,11 +283,31 @@ router.get('/indicator/:name', (req, res) => {
     const indicatorName = req.params.name;
     const indicatorData = storedData[indicatorName];
 
-    if (indicatorData) {
-        res.json(indicatorData);
-    } else {
-        res.status(404).json({ error: 'Indicator not found' });
+    if (!indicatorData) {
+        return res.status(404).json({ error: 'Indicator not found' });
     }
+
+    const { startDate, endDate } = req.query;
+    const dates = indicatorData.dates;
+    const values = indicatorData.values;
+
+    const filteredByStartDates = startDate ? dates.filter(date => date >= startDate) : dates; 
+    const filteredDates = endDate ? filteredByStartDates.filter(date => date <= endDate) : filteredByStartDates;
+
+    const filteredValues = filteredDates.map(date => {
+        const index = dates.indexOf(date);
+        return values[index];
+    })
+
+    const filteredIndicatorData = {
+        name: indicatorData.name,
+        dates: filteredDates,
+        values: filteredValues,
+        source: indicatorData.source,
+        url: indicatorData.url
+    }
+
+    res.json(filteredIndicatorData);
 });
 
 module.exports = router;
