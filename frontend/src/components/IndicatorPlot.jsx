@@ -59,17 +59,16 @@ const IndicatorPlot = ({ indicator, bitcoinData, startDate, endDate }) => {
   // Return the placeholder if not loaded yet
   if (!isVisible || !indicatorData) {
     return (
-      <div ref={plotRef} className="w-full h-full bg-zinc-800 animate-pulse rounded-sm">
-        {/* header */}
-        <div className="p-4 flex items-center justify-between">
-          <div className="h-7 w-7 bg-zinc-700 rounded-full"></div>
-          <div className="h-5 w-1/3 bg-zinc-700 rounded"></div>
-          <div className="h-6 w-6 bg-zinc-700 rounded-sm"></div>
-        </div>
-
-        {/* plot area */}
-        <div className="m-4 mt-2 h-80 w-auto bg-zinc-700"></div>
+      <div className='bg-zinc-900 border-zinc-700 border rounded-sm text-zinc-200 text-center divide-y divide-zinc-700 hover:shadow-md hover:shadow-zinc-700/25'>
+      <div className='p-4 flex justify-between items-center'>
+        <div className='h-6 w-6' />
+        <h2 className='font-semibold'>{indicator}</h2>
+        <ArrowsPointingOutIcon className='h-5 w-5 text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen(`plot-${indicatorData.name}`)} />
       </div>
+      <div className='w-full h-96 mb-3' ref={plotRef}>
+        <div className='w-full h-full' />
+      </div>
+    </div>
     );
   }
 
