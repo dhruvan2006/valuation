@@ -21,34 +21,35 @@ const Valuation = () => {
   const [zScoreData, setZScoreData] = useState({});
   const [startDate, setStartDate] = useState('2016-01-01');
   const [endDate, setEndDate] = useState(getTodayAsString());
+  const [debouncedStartDate, setDebouncedStartDate] = useState(startDate);
+  const [debouncedEndDate, setDebouncedEndDate] = useState(endDate);
   const plotRef = useRef(null);
-  // const [indicatorData, setIndicatorData] = useState([]);
 
   // Fetch Bitcoin Data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/valuation/bitcoin', { params: { startDate, endDate }});
+        const response = await axios.get('/api/valuation/bitcoin', { params: { startDate: debouncedStartDate, endDate: debouncedEndDate }});
         setBitcoinData(response.data);
       } catch (error) {
         console.error('Error fetching z scores:', error);
       }
     }
     fetchData();
-  }, [startDate, endDate]);
+  }, [debouncedStartDate, debouncedEndDate]);
 
   // Fetch Z Score Data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/valuation/', { params: { startDate, endDate }});
+        const response = await axios.get('/api/valuation/', { params: { startDate: debouncedStartDate, endDate: debouncedEndDate }});
         setZScoreData(response.data);
       } catch (error) {
         console.error('Error fetching z scores:', error);
       }
     }
     fetchData();
-  }, [startDate, endDate]);
+  }, [debouncedStartDate, debouncedEndDate]);
 
   const toggleFullscreen = () => {
     const element = plotRef.current;
@@ -60,6 +61,28 @@ const Valuation = () => {
       document.exitFullscreen();
     }
   };
+
+  // Debounce startDate
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedStartDate(startDate);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    }
+  }, [startDate]);
+
+  // Debounce endDate
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedEndDate(endDate);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    }
+  }, [endDate]);
 
   return (
     <>
@@ -134,8 +157,8 @@ const Valuation = () => {
               key={indicator}
               indicator={indicator}
               bitcoinData={bitcoinData}
-              startDate={startDate}
-              endDate={endDate}
+              startDate={debouncedStartDate}
+              endDate={debouncedEndDate}
             />
           ))}
         </div>
