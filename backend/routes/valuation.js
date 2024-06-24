@@ -196,7 +196,7 @@ const lookintobitcoinIndicators = [
     ["Oscillator", "pi_cycle_top_bottom_indicator", "https://www.lookintobitcoin.com/django_plotly_dash/app/pi_cycle_top_bottom_indicator/_dash-update-component", "https://www.lookintobitcoin.com/charts/pi-cycle-top-bottom-indicator/"],
     ["VDD Multiple", "value-days-destroyed-multiple", "https://www.lookintobitcoin.com/django_plotly_dash/app/vdd_multiple/_dash-update-component", "https://www.lookintobitcoin.com/charts/value-days-destroyed-multiple/"]
 ]
-lookintobitcoinIndicators.forEach(([ name, url, human_url]) => fetchLookintobitcoin(name, url, human_url, storedData));
+lookintobitcoinIndicators.forEach(([ name, indicatorName, url, human_url]) => fetchLookintobitcoin(name, indicatorName, url, human_url, storedData));
 
 // Fetch chainexposed indicators
 const chainexposedIndicators = [
