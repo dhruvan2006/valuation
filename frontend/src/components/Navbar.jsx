@@ -32,18 +32,18 @@ const Navbar = () => {
           <XMarkIcon className='h-7 w-7 text-white' onClick={toggleMobileMenu} />
         </li> */}
         <li className='mb-2 md:mb-0'>
-        <NavLink to="/" end className={({ isActive }) => `block text-sm font-semibold py-2 px-4 rounded-lg transition duration-200 md:p-0 md:bg-transparent md:hover:bg-transparent ${isActive ? "text-white bg-zinc-700" : "text-zinc-400 hover:text-white hover:bg-zinc-700"}`}>
-            Leverage
+          <NavLink to="/" className={({ isActive }) => `block text-sm font-semibold py-2 px-4 rounded-lg transition duration-200 md:p-0 md:bg-transparent md:hover:bg-transparent ${isActive ? "text-white bg-zinc-700" : "text-zinc-400 hover:text-white hover:bg-zinc-700"}`}>
+            Valuation
           </NavLink>
         </li>
         <li className='mb-2 md:mb-0'>
           <NavLink to="/optimal" className={({ isActive }) => `block text-sm font-semibold py-2 px-4 rounded-lg transition duration-200 md:p-0 md:bg-transparent md:hover:bg-transparent ${isActive ? "text-white bg-zinc-700" : "text-zinc-400 hover:text-white hover:bg-zinc-700"}`}>
-            Optimal Leverage
+            Optimal Lev
           </NavLink>
         </li>
         <li className='mb-2 md:mb-0'>
-          <NavLink to="/valuation" className={({ isActive }) => `block text-sm font-semibold py-2 px-4 rounded-lg transition duration-200 md:p-0 md:bg-transparent md:hover:bg-transparent ${isActive ? "text-white bg-zinc-700" : "text-zinc-400 hover:text-white hover:bg-zinc-700"}`}>
-            Valuation
+          <NavLink to="/leverage" end className={({ isActive }) => `block text-sm font-semibold py-2 px-4 rounded-lg transition duration-200 md:p-0 md:bg-transparent md:hover:bg-transparent ${isActive ? "text-white bg-zinc-700" : "text-zinc-400 hover:text-white hover:bg-zinc-700"}`}>
+            TLX/Toros
           </NavLink>
         </li>
         <li className='mb-2 md:mb-0'>

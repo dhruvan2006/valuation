@@ -13,9 +13,9 @@ const App = () => {
       <div className='mt-20' />
       <ScrollBackToTop />
       <Routes>
-        <Route path="/" element={<Leverage />} />
+        <Route path="/" element={<Valuation />} />
         <Route path="/optimal" element={<OptimalLeverage />} />
-        <Route path="/valuation" element={<Valuation />} />
+        <Route path="/leverage" element={<Leverage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
