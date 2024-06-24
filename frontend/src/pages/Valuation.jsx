@@ -62,27 +62,17 @@ const Valuation = () => {
     }
   };
 
-  // Debounce startDate
+  // Debounce startDate and endDate
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedStartDate(startDate);
-    }, 300);
-
-    return () => {
-      clearTimeout(handler);
-    }
-  }, [startDate]);
-
-  // Debounce endDate
-  useEffect(() => {
-    const handler = setTimeout(() => {
       setDebouncedEndDate(endDate);
     }, 300);
 
     return () => {
       clearTimeout(handler);
-    }
-  }, [endDate]);
+    };
+  }, [startDate, endDate]);
 
   return (
     <>

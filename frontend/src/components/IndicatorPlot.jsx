@@ -7,14 +7,13 @@ const IndicatorPlot = ({ indicator, bitcoinData, startDate, endDate }) => {
   const [indicatorData, setIndicatorData] = useState(null);
   const plotRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const prevDatesRef = useRef({ startDate, endDate });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
+        setIsVisible(entry.isIntersecting);
       },
       { threshold: 0.1 }
     );
@@ -31,19 +30,23 @@ const IndicatorPlot = ({ indicator, bitcoinData, startDate, endDate }) => {
   }, []);
 
   useEffect(() => {
-    if (isVisible) {
+    const datesChanged = prevDatesRef.current.startDate !== startDate || prevDatesRef.current.endDate !== endDate;
+
+    if (isVisible && (!hasLoaded || datesChanged)) {
       const fetchData = async () => {
         try {
           const encodedIndicator = encodeURIComponent(indicator);
           const response = await axios.get(`/api/valuation/indicator/${encodedIndicator}`, { params: { startDate, endDate }});
           setIndicatorData(response.data);
+          setHasLoaded(true);
+          prevDatesRef.current = { startDate, endDate };
         } catch (error) {
           console.error('Error fetching indicator data:', error);
         }
       };
       fetchData();
     }
-  }, [isVisible, indicator, startDate, endDate]);
+  }, [isVisible, indicator, startDate, endDate, hasLoaded]);
 
   const toggleFullscreen = () => {
     const element = plotRef.current;
@@ -57,7 +60,7 @@ const IndicatorPlot = ({ indicator, bitcoinData, startDate, endDate }) => {
   };
 
   // Return the placeholder if not loaded yet
-  if (!isVisible || !indicatorData) {
+  if (!indicatorData) {
     return (
       <div className='bg-zinc-900 border-zinc-700 border rounded-sm text-zinc-200 text-center divide-y divide-zinc-700 hover:shadow-md hover:shadow-zinc-700/25'>
       <div className='p-4 flex justify-between items-center'>
