@@ -65,7 +65,7 @@ const IndicatorPlot = ({ indicator, bitcoinData, startDate, endDate }) => {
       <div className='bg-zinc-900 border-zinc-700 border rounded-sm text-zinc-200 text-center divide-y divide-zinc-700 hover:shadow-md hover:shadow-zinc-700/25'>
       <div className='p-4 flex justify-between items-center'>
         <div className='h-6 w-6' />
-        <h2 className='font-semibold'>{indicator}</h2>
+        <h2 className='font-semibold underline underline-offset-4 text-blue-500 hover:text-blue-600'>{indicator}</h2>
         <ArrowsPointingOutIcon className='h-5 w-5 text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen(`plot-${indicatorData.name}`)} />
       </div>
       <div className='w-full h-96 mb-3' ref={plotRef}>
@@ -89,7 +89,7 @@ const IndicatorPlot = ({ indicator, bitcoinData, startDate, endDate }) => {
         ) : (
           <a href={indicatorData.url} target='_blank' referrerPolicy='no-referrer'><img alt='Cryptoquant Logo' src='/cryptoquant.png' className='h-6 w-6' /></a>
         )}
-        <h2 className='font-semibold'><a href={indicatorData.url} target='_blank' referrerPolicy='no-referrer'>{indicatorData.name}</a></h2>
+        <h2 className='font-semibold'><a href={indicatorData.url} target='_blank' referrerPolicy='no-referrer' className='underline underline-offset-4 text-blue-500 hover:text-blue-600'>{indicatorData.name}</a></h2>
         <ArrowsPointingOutIcon className='h-5 w-5 text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen(`plot-${indicatorData.name}`)} />
       </div>
       <div className='w-full h-96 mb-3' ref={plotRef}>

@@ -119,7 +119,8 @@ const Valuation = () => {
                 font: {
                   color: '#ffffff'
                 },
-                showlegend: false
+                showlegend: false,
+                margin: { t: 70, r: 65, b: 70, l: 65 }
               }}
               config={{
                 displayModeBar: false,
