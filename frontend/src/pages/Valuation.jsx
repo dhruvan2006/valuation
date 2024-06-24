@@ -5,7 +5,7 @@ import { ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
 import DatePicker from '../components/DatePicker';
 import IndicatorPlot from '../components/IndicatorPlot';
 
-const indicators = ['AVIV Z-Score', 'VDD Multiple', 'index', 'mvrv_z', 'Oscillator', 'MVRV'];//, 'Adjusted_MVRV'];
+const indicators = ['AVIV Z-Score', 'MVRV Z-Score', 'STH-MVRV Z-Score', 'LTH-NUPL', 'Mayer Multiple Z', 'SOPR 7D-EMA', 'Reserve Risk (Adjusted)', 'VDD Multiple', 'Difficulty Multiple', 'index', 'mvrv_z', 'Oscillator', 'MVRV'];//, 'Adjusted_MVRV'];
 
 const getTodayAsString = () => {
   const today = new Date();
@@ -19,7 +19,7 @@ const getTodayAsString = () => {
 const Valuation = () => {
   const [bitcoinData, setBitcoinData] = useState({});
   const [zScoreData, setZScoreData] = useState({});
-  const [startDate, setStartDate] = useState('2016-01-01');
+  const [startDate, setStartDate] = useState('2020-01-01');
   const [endDate, setEndDate] = useState(getTodayAsString());
   const [debouncedStartDate, setDebouncedStartDate] = useState(startDate);
   const [debouncedEndDate, setDebouncedEndDate] = useState(endDate);

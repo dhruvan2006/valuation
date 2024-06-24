@@ -90,11 +90,8 @@ async function fetchWoocharts(name, url, storedData) {
     }
 }
 
-async function fetchLookintobitcoin(name, url, human_url, storedData) {
+async function fetchLookintobitcoin(name, indicatorName, url, human_url, storedData) {
     try {
-        const pathSegments = url.split('/');
-        const indicator = pathSegments[3];
-
         const payload = {
             "output":"chart.figure",
             "outputs": {
@@ -104,7 +101,7 @@ async function fetchLookintobitcoin(name, url, human_url, storedData) {
             "inputs":[{
                 "id":"url",
                 "property":"pathname",
-                "value":`/charts/${indicator}/`
+                "value":`/charts/${indicatorName}/`
             }],
             "changedPropIds":["url.pathname"]
         }
@@ -183,13 +180,21 @@ woochartsIndicators.forEach(([name, url]) => fetchWoocharts(name, url, storedDat
 // Fetch checkonchain indicators
 const checkonchainIndicators = [
     ['https://charts.checkonchain.com/btconchain/pricing/pricing_mvrv_aviv_zscore/pricing_mvrv_aviv_zscore_light.html', 'AVIV Z-Score'],
-    ['https://charts.checkonchain.com/btconchain/lifespan/lifespan_vddmultiple/lifespan_vddmultiple_light.html', 'VDD Multiple']
+    ['https://charts.checkonchain.com/btconchain/pricing/pricing_mvrv_all_zscore/pricing_mvrv_all_zscore_light.html', 'MVRV Z-Score'],
+    ['https://charts.checkonchain.com/btconchain/pricing/pricing_mvrv_sth_zscore/pricing_mvrv_sth_zscore_light.html', 'STH-MVRV Z-Score'],
+    ['https://charts.checkonchain.com/btconchain/pricing/pricing_nupl_bycohort/pricing_nupl_bycohort_light.html', 'LTH-NUPL'],
+    ['https://charts.checkonchain.com/btconchain/pricing/pricing_mayermultiple_zscore/pricing_mayermultiple_zscore_light.html', 'Mayer Multiple Z'],
+    ['https://charts.checkonchain.com/btconchain/realised/realised_sopr/realised_sopr_light.html', 'SOPR 7D-EMA'],
+    // ['https://charts.checkonchain.com/btconchain/lifespan/lifespan_vddmultiple/lifespan_vddmultiple_light.html', 'VDD Multiple'],
+    ['https://charts.checkonchain.com/btconchain/lifespan/lifespan_reserverisk/lifespan_reserverisk_light.html', 'Reserve Risk (Adjusted)'],
+    ['https://charts.checkonchain.com/btconchain/mining/mining_difficultyregression/mining_difficultyregression_light.html', 'Difficulty Multiple']
 ]
 checkonchainIndicators.forEach(([ url, indicator ]) => fetchCheckOnChain(url, indicator, storedData));
 
 // Fetch lookintobitcoin indicators
 const lookintobitcoinIndicators = [
-    ["Oscillator", "https://www.lookintobitcoin.com/django_plotly_dash/app/pi_cycle_top_bottom_indicator/_dash-update-component", "https://www.lookintobitcoin.com/charts/pi-cycle-top-bottom-indicator/"]
+    ["Oscillator", "pi_cycle_top_bottom_indicator", "https://www.lookintobitcoin.com/django_plotly_dash/app/pi_cycle_top_bottom_indicator/_dash-update-component", "https://www.lookintobitcoin.com/charts/pi-cycle-top-bottom-indicator/"],
+    ["VDD Multiple", "value-days-destroyed-multiple", "https://www.lookintobitcoin.com/django_plotly_dash/app/vdd_multiple/_dash-update-component", "https://www.lookintobitcoin.com/charts/value-days-destroyed-multiple/"]
 ]
 lookintobitcoinIndicators.forEach(([ name, url, human_url]) => fetchLookintobitcoin(name, url, human_url, storedData));
 
