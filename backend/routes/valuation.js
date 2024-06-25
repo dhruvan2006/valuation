@@ -114,8 +114,8 @@ async function fetchLookintobitcoin(name, indicatorName, url, human_url, storedD
                 const dates = plot.x.map(normalizeDate);
                 const values = plot.y;
 
-                storedData[name] = {
-                    name: name,
+                storedData[indicatorName] = {
+                    name: indicatorName,
                     dates: dates,
                     values: values,
                     source: 'LookIntoBitcoin',

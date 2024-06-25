@@ -5,7 +5,7 @@ import { ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
 import DatePicker from '../components/DatePicker';
 import IndicatorPlot from '../components/IndicatorPlot';
 
-const indicators = ['AVIV Z-Score', 'MVRV Z-Score', 'STH-MVRV Z-Score', 'LTH-NUPL', 'Mayer Multiple Z', 'SOPR 7D-EMA', 'Reserve Risk (Adjusted)', 'VDD Multiple', 'Difficulty Multiple', 'index', 'mvrv_z', 'Oscillator', 'MVRV'];//, 'Adjusted_MVRV'];
+const indicators = ['AVIV Z-Score', 'MVRV Z-Score', 'STH-MVRV Z-Score', 'LTH-NUPL', 'Mayer Multiple Z', 'SOPR 7D-EMA', 'Reserve Risk (Adjusted)', 'Difficulty Multiple', 'value-days-destroyed-multiple', 'pi_cycle_top_bottom_indicator', 'index', 'mvrv_z',  'MVRV'];//, 'Adjusted_MVRV', 'IFP', 'sma_nupl_mvrv_avg', 'MVRV_STH', 'sharpe_ratio_365', 'Oscillator'];
 
 const getTodayAsString = () => {
   const today = new Date();
