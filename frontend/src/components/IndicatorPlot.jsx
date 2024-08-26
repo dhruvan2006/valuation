@@ -92,7 +92,7 @@ const IndicatorPlot = ({ indicator, bitcoinData, startDate, endDate }) => {
         <h2 className='font-semibold'><a href={indicatorData.url} target='_blank' referrerPolicy='no-referrer' className='underline underline-offset-4 text-blue-500 hover:text-blue-600'>{indicatorData.name}</a></h2>
         <ArrowsPointingOutIcon className='h-5 w-5 text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen(`plot-${indicatorData.name}`)} />
       </div>
-      <div className='w-full h-96 mb-3' ref={plotRef}>
+      <div className='w-full h-[60vh] mb-3' ref={plotRef}>
         <Plot
           className='w-full h-full'
           data={[

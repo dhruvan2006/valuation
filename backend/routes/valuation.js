@@ -1,4 +1,5 @@
 const express = require('express');
+const cron = require('node-cron');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const cheerio = require('cheerio');
@@ -9,6 +10,8 @@ router.use(bodyParser.json());
 
 // // Increase limit for cryptoquant POST
 // router.use(bodyParser.json({ limit: '50mb' }));
+
+let lastUpdated = Date.now();
 
 const getTimestamp = () => {
     return new Date().toUTCString();
@@ -175,7 +178,6 @@ const woochartsIndicators = [
     ["index", "https://woocharts.com/bitcoin-macro-oscillator/"], 
     ["mvrv_z", "https://woocharts.com/bitcoin-mvrv-z/"]
 ]
-woochartsIndicators.forEach(([name, url]) => fetchWoocharts(name, url, storedData));
 
 // Fetch checkonchain indicators
 const checkonchainIndicators = [
@@ -189,24 +191,37 @@ const checkonchainIndicators = [
     ['https://charts.checkonchain.com/btconchain/lifespan/lifespan_reserverisk/lifespan_reserverisk_light.html', 'Reserve Risk (Adjusted)'],
     ['https://charts.checkonchain.com/btconchain/mining/mining_difficultyregression/mining_difficultyregression_light.html', 'Difficulty Multiple']
 ]
-checkonchainIndicators.forEach(([ url, indicator ]) => fetchCheckOnChain(url, indicator, storedData));
 
 // Fetch lookintobitcoin indicators
 const lookintobitcoinIndicators = [
     ["Oscillator", "pi_cycle_top_bottom_indicator", "https://www.lookintobitcoin.com/django_plotly_dash/app/pi_cycle_top_bottom_indicator/_dash-update-component", "https://www.lookintobitcoin.com/charts/pi-cycle-top-bottom-indicator/"],
     ["VDD Multiple", "value-days-destroyed-multiple", "https://www.lookintobitcoin.com/django_plotly_dash/app/vdd_multiple/_dash-update-component", "https://www.lookintobitcoin.com/charts/value-days-destroyed-multiple/"]
 ]
-lookintobitcoinIndicators.forEach(([ name, indicatorName, url, human_url]) => fetchLookintobitcoin(name, indicatorName, url, human_url, storedData));
 
 // Fetch chainexposed indicators
 const chainexposedIndicators = [
     ["MVRV", "https://chainexposed.com/XthMVRVShortTermHolderAddress.html"]
 ]
-chainexposedIndicators.forEach(([ name, url ]) => fetchChainexposed(name, url, storedData));
+
+// Fetch all indicators
+const fetchIndicators = () => {
+    woochartsIndicators.forEach(([name, url]) => fetchWoocharts(name, url, storedData));
+    checkonchainIndicators.forEach(([ url, indicator ]) => fetchCheckOnChain(url, indicator, storedData));
+    lookintobitcoinIndicators.forEach(([ name, indicatorName, url, human_url]) => fetchLookintobitcoin(name, indicatorName, url, human_url, storedData));
+    chainexposedIndicators.forEach(([ name, url ]) => fetchChainexposed(name, url, storedData));
+    lastUpdated = Date.now();
+}
+cron.schedule('0 */1 * * *', fetchIndicators);
+fetchIndicators();
 
 // Fetch bitcoin price
 bitcoinData = {}
-fetchCheckOnChain('https://charts.checkonchain.com/btconchain/pricing/pricing_mayermultiple_zscore/pricing_mayermultiple_zscore_light.html', 'Price', bitcoinData);
+const fetchBitcoin = () => {
+    fetchCheckOnChain('https://charts.checkonchain.com/btconchain/pricing/pricing_mayermultiple_zscore/pricing_mayermultiple_zscore_light.html', 'Price', bitcoinData);
+    lastUpdated = Date.now();
+}
+cron.schedule('0 */1 * * *', fetchBitcoin);
+fetchBitcoin();
 
 // Receive cryptoquant
 router.post('/cryptoquant', (req, res) => {
@@ -228,6 +243,10 @@ router.post('/cryptoquant', (req, res) => {
     });
 
     res.status(200).json({"message": "Successfully saved data for cryptoquant!"});
+});
+
+router.get('/lastUpdated', (req, res) => {
+    res.json({ lastUpdated: lastUpdated });
 });
 
 router.get('/bitcoin', (req, res) => {

@@ -25,6 +25,50 @@ const Valuation = () => {
   const [debouncedEndDate, setDebouncedEndDate] = useState(endDate);
   const plotRef = useRef(null);
 
+  // Last updated display
+  const [lastUpdated, setLastUpdated] = useState(0);
+
+  useEffect(() => {
+    const fetchLastUpdated = async () => {
+      try {
+        const response = await axios.get('api/leverage/lastUpdated');
+        const date = new Date(response.data['lastUpdated']);
+        setLastUpdated(date);
+      } catch (error) {
+        console.error('Error fetching last updated time');
+      }
+    }
+
+    fetchLastUpdated();
+  }, []);
+
+  const timeAgo = (date) => {
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+    let interval = seconds / 31536000;
+  
+    if (interval > 1) {
+      return Math.floor(interval) + ' years ago';
+    }
+    interval = seconds / 2592000;
+    if (interval > 1) {
+      return Math.floor(interval) + ' months ago';
+    }
+    interval = seconds / 86400;
+    if (interval > 1) {
+      return Math.floor(interval) + ' days ago';
+    }
+    interval = seconds / 3600;
+    if (interval > 1) {
+      return Math.floor(interval) + ' hours ago';
+    }
+    interval = seconds / 60;
+    if (interval > 1) {
+      return Math.floor(interval) + ' minutes ago';
+    }
+    return Math.floor(seconds) + ' seconds ago';
+  }  
+
   // Fetch Bitcoin Data
   useEffect(() => {
     const fetchData = async () => {
@@ -80,9 +124,10 @@ const Valuation = () => {
       <div className='mx-4 md:mx-10 lg:mx-16 mb-10'>
         <div className='text-center mb-4'>
           <h1 className='text-white text-4xl font-semibold'>Valuation</h1>
-          <p className='text-zinc-300'>Combine various stationary time series together to achieve a full cycle indicator for Bitcoin</p>
+          <p className='text-zinc-300'>Last updated: <span className='font-semibold'>{lastUpdated ? timeAgo(lastUpdated) : 'Loading...'}</span></p>
+          {/* <p className='text-zinc-300'>Combine various stationary time series together to achieve a full cycle indicator for Bitcoin</p> */}
         </div>
-        <div className='text-center w-full h-[30rem] relative mb-4'>
+        <div className='text-center w-full h-[70vh] relative mb-4'>
           <div className='p-2 absolute top-0 right-0 z-10'>
             <ArrowsPointingOutIcon className='h-6 w-6  text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen('main-plot')} />
           </div>
