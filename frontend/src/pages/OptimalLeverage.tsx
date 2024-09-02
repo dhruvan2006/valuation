@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { MouseEvent, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Plot from 'react-plotly.js';
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
@@ -38,20 +38,38 @@ const options = [
   "XLM"
 ]
 
+type LevData = {
+  ticker: string;
+  data: any;
+}
+
+type TickerData = {
+  ticker: string;
+  k: number;
+  R: number;
+  R_fees: number;
+  k_max: number;
+  R_max: number;
+  mu: number;
+  std: number;
+  x: string[];
+  y: number[];
+}
+
 const OptimalLeverage = () => {
   const [inputValue, setInputValue] = useState('ETH');
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [fees, setFees] = useState(2.);
+  const [fees, setFees] = useState('2');
   const [lowerLev, setLowerLev] = useState(0.);
   const [upperLev, setUpperLev] = useState(8.);
   const [startDate, setStartDate] = useState('2023-01-01');
   const [endDate, setEndDate] = useState('2024-06-19');
-  const [tickerData, setTickerData] = useState({});
-  const [currentCycleData, setCurrentCycleData] = useState([]);
-  const [lastCycleData, setLastCycleData] = useState([]);
-  const [lastLastCycleData, setLastLastCycleData] = useState([]);
-  const dropdownRef = useRef(null);
+  const [tickerData, setTickerData] = useState<TickerData>();
+  const [currentCycleData, setCurrentCycleData] = useState<LevData[]>();
+  const [lastCycleData, setLastCycleData] = useState<LevData[]>();
+  const [lastLastCycleData, setLastLastCycleData] = useState<LevData[]>();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Handle getting data for the custom ticker
   useEffect(() => {
@@ -77,19 +95,19 @@ const OptimalLeverage = () => {
     };
   }, []);
 
-  const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+  const handleClickOutside = (event: Event) => {
+    if (dropdownRef.current && event.target instanceof Node && !dropdownRef.current.contains(event.target)) {
       setShowDropdown(false);
     }
   };
 
-  const handleEscapeKey = (event) => {
+  const handleEscapeKey = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       setShowDropdown(false);
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setFilteredOptions(options.filter(option => 
       option.toLowerCase().includes(value.toLowerCase())
@@ -102,13 +120,13 @@ const OptimalLeverage = () => {
     setShowDropdown(true);
   };
 
-  const handleOptionClick = (option) => {
+  const handleOptionClick = (option: string) => {
     setInputValue(option);
     setShowDropdown(false);
   }
 
   // Functionality for custom ticker FEES
-  const handleFeesChange = (e) => {
+  const handleFeesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (/^\d*\.?\d*$/.test(value)) {
       setFees(value);
@@ -293,40 +311,40 @@ const OptimalLeverage = () => {
             className='w-full h-96'
             data={[
               {
-                x: tickerData.k,
-                y: tickerData.R,
+                x: Array.isArray(tickerData?.k) ? tickerData.k : [],
+                y: Array.isArray(tickerData?.R) ? tickerData.R : [],
                 type: 'scatter',
                 mode: 'lines',
                 marker: { color: 'orange' },
-                name: 'Leverage Efficiency'
+                name: 'Leverage Efficiency',
               },
               {
-                x: tickerData.k,
-                y: tickerData.R_fees,
+                x: Array.isArray(tickerData?.k) ? tickerData.k : [],
+                y: Array.isArray(tickerData?.R_fees) ? tickerData.R_fees : [],
                 type: 'scatter',
                 mode: 'lines',
                 line: { dash: 'dash', color: 'white', width: 1 },
-                name: 'Accounted for fees'
+                name: 'Accounted for fees',
               },
               {
-                x: [tickerData.k_max],
-                y: [tickerData.R_max],
+                x: [tickerData?.k_max ?? 0],
+                y: [tickerData?.R_max ?? 0],
                 type: 'scatter',
                 mode: 'markers',
                 marker: { color: 'red', size: 10 },
-                name: 'Optimum Leverage'
-              }
+                name: 'Optimum Leverage',
+              },
             ]}
             layout={{
               showlegend: false,
               title: 'Optimum leverage',
-              xaxis: { title: 'Leverage multiple' },//, gridcolor: '#9ca3af' },
-              yaxis: { title: 'Daily Return' },// gridcolor: '#9ca3af' },
+              xaxis: { title: 'Leverage multiple' },
+              yaxis: { title: 'Daily Return' },
               autosize: true,
               plot_bgcolor: 'rgb(39 39 42)',
               paper_bgcolor: 'rgb(39 39 42)',
               font: {
-                color: '#ffffff'
+                color: '#ffffff',
               },
               margin: { l: 70, t: 75, r: 30, b: 75 },
             }}
@@ -336,8 +354,8 @@ const OptimalLeverage = () => {
             className='w-full h-96'
             data={[
               {
-                x: tickerData.x,
-                y: tickerData.y,
+                x: tickerData?.x,
+                y: tickerData?.y,
                 type: 'scatter',
                 mode: 'lines',
                 marker: { color: 'orange' },
@@ -348,7 +366,7 @@ const OptimalLeverage = () => {
               showlegend: false,
               title: 'Price',
               xaxis: { title: 'Date' },//, gridcolor: '#9ca3af' },
-              yaxis: { title: tickerData.ticker },// gridcolor: '#9ca3af' },
+              yaxis: { title: tickerData?.ticker },// gridcolor: '#9ca3af' },
               autosize: true,
               plot_bgcolor: 'rgb(39 39 42)',
               paper_bgcolor: 'rgb(39 39 42)',
@@ -361,7 +379,7 @@ const OptimalLeverage = () => {
           />
         </div>
       
-        {Object.keys(tickerData).length === 0 && tickerData.constructor === Object ? '' : <p className='text-white mt-5 text-center'>Maximum permissible leverage <span className='font-semibold'>{tickerData.k_max.toFixed(2)}</span></p>}
+        {tickerData && Object.keys(tickerData).length === 0 && tickerData.constructor === Object ? '' : <p className='text-white mt-5 text-center'>Maximum permissible leverage <span className='font-semibold'>{tickerData?.k_max.toFixed(2)}</span></p>}
       </div>
 
       {/* Current bullrun */}
@@ -371,7 +389,7 @@ const OptimalLeverage = () => {
           <p className='text-zinc-400'>(From <span className='font-semibold'>2023-01-01</span> to <span className='font-semibold'>today</span>)</p>
         </div>
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
-          {currentCycleData.map(({ ticker, data }) => (
+          {currentCycleData?.map(({ ticker, data }) => (
             <Plot
               key={ticker}
               className='w-full h-96'
@@ -432,7 +450,7 @@ const OptimalLeverage = () => {
           <p className='text-zinc-400'>(From <span className='font-semibold'>2020-04-24</span> to <span className='font-semibold'>2021-05-17</span>)</p>
         </div>
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
-          {lastCycleData.map(({ ticker, data }) => (
+          {lastCycleData?.map(({ ticker, data }) => (
             <Plot
               key={ticker}
               className='w-full h-96'
@@ -493,7 +511,7 @@ const OptimalLeverage = () => {
           <p className='text-zinc-400'>(From <span className='font-semibold'>2015-07-03</span> to <span className='font-semibold'>2018-01-12</span>)</p>
         </div>
         <div className=''>
-          {lastLastCycleData.map(({ ticker, data }) => (
+          {lastLastCycleData?.map(({ ticker, data }) => (
             <Plot
               key={ticker}
               className='w-full h-96'

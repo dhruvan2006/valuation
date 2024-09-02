@@ -1,16 +1,35 @@
 import axios from 'axios';
+import { Axis, Data, Layout } from 'plotly.js';
 import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
 
-const Toros = ({ assets, name }) => {
+type TorosProps = {
+  assets: Array<string>;
+  name: string;
+}
+
+type AssetPoint = {
+  timestamp: string;
+  price: number;
+}
+
+type AssetData = {
+  [key: string]: Array<AssetPoint>;
+}
+
+type RatioData = {
+  [key: string]: number;
+}
+
+const Toros: React.FC<TorosProps> = ({ assets, name }) => {
   const [selectedAssets, setSelectedAssets] = useState(assets);
-  const [assetData, setAssetData] = useState({});
+  const [assetData, setAssetData] = useState<AssetData>({});
 
   const [sharpeRatios, setSharpeRatios] = useState({});
   const [sortinoRatios, setSortinoRatios] = useState({});
   const [omegaRatios, setOmegaRatios] = useState({});
 
-  const handleCheckboxChange = (event) => {
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = event.target;
     setSelectedAssets((prevSelectedAssets) => 
       checked ? [...prevSelectedAssets, name] : prevSelectedAssets.filter(asset => asset !== name)
@@ -19,7 +38,7 @@ const Toros = ({ assets, name }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = {};
+      const data: AssetData = {};
       for (const asset of selectedAssets) {
         try {
           const response = await axios.get(`/api/leverage/toros/asset/${asset}`);
@@ -38,9 +57,9 @@ const Toros = ({ assets, name }) => {
 
   useEffect(() =>  {
     const calculateRatios = () => {
-      const sharpe = {};
-      const sortino = {};
-      const omega = {};
+      const sharpe: RatioData = {};
+      const sortino: RatioData = {};
+      const omega: RatioData = {};
       const threshold = 0;
 
       for (const asset in assetData) {
@@ -72,7 +91,7 @@ const Toros = ({ assets, name }) => {
     }
   }, [assetData]);
 
-  const plotData = Object.keys(assetData).map((asset, index) => {
+  const plotData: Data[] = Object.keys(assetData).map((asset, index) => {
     return {
       x: assetData[asset].map(point => new Date(point.timestamp)),
       y: assetData[asset].map(point => point.price),
@@ -83,7 +102,7 @@ const Toros = ({ assets, name }) => {
     };
   });
 
-  const yAxes = Object.keys(assetData).map((asset, index) => {
+  const yAxes: any = Object.keys(assetData).map((asset, index) => {
     return {
       title: asset,
       overlaying: index === 0 ? undefined : 'y',
@@ -93,13 +112,13 @@ const Toros = ({ assets, name }) => {
     };
   });
 
-  const layout = {
+  const layout: Layout = {
     title: `Toros Levered ${name}`,
     autosize: true,
     // margin: { l: 30, r: 100, t: 70, b: 20 },
     yaxis: yAxes[0], // primary yaxis
-    ...yAxes.slice(1).reduce((acc, yaxis, index) => {
-      acc[`yaxis${index + 2}`] = yaxis; // yaxis2, yaxis3, ...
+    ...yAxes.slice(1).reduce((acc: any, yaxis: any, index: any) => {
+      (acc as { [key: string]: any })[`yaxis${index + 2}`] = yaxis; // yaxis2, yaxis3, ...
       return acc;
     }, {}),
     plot_bgcolor: '#1b1b1b',
@@ -109,7 +128,7 @@ const Toros = ({ assets, name }) => {
     },
   };
 
-  const sharpeRatioData = {
+  const sharpeRatioData: any = {
     x: Object.keys(sharpeRatios),
     y: Object.values(sharpeRatios),
     type: 'bar',
@@ -119,7 +138,7 @@ const Toros = ({ assets, name }) => {
     }
   };
 
-  const sortinoRatioData = {
+  const sortinoRatioData: any = {
     x: Object.keys(sortinoRatios),
     y: Object.values(sortinoRatios),
     type: 'bar',
@@ -129,7 +148,7 @@ const Toros = ({ assets, name }) => {
     }
   };
 
-  const omegaRatioData = {
+  const omegaRatioData: any = {
     x: Object.keys(omegaRatios),
     y: Object.values(omegaRatios),
     type: 'bar',

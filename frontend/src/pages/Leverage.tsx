@@ -12,7 +12,7 @@ const torosEth = ['ARB:ETHBULL3X', 'MATIC:ETHBULL3X', 'OP:ETHBULL3X', 'OP:ETHBUL
 const torosSol = ['OP:SOLBULL3X', 'OP:SOLLBULL2X'];
 
 const Leverage = () => {
-  const [lastUpdated, setLastUpdated] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState<Date>();
 
   useEffect(() => {
     const fetchLastUpdated = async () => {
@@ -28,9 +28,9 @@ const Leverage = () => {
     fetchLastUpdated();
   }, []);
 
-  const timeAgo = (date) => {
+  const timeAgo = (date: Date) => {
     const now = new Date();
-    const seconds = Math.floor((now - date) / 1000);
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     let interval = seconds / 31536000;
   
     if (interval > 1) {

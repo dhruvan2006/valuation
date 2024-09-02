@@ -1,30 +1,41 @@
-const express = require('express');
-const cron = require('node-cron');
-const bodyParser = require('body-parser');
-const axios = require('axios');
-const cheerio = require('cheerio');
-require('dotenv').config();
+import express from 'express';
+import cron from 'node-cron';
+import bodyParser from 'body-parser';
+import axios from 'axios';
+import cheerio from 'cheerio';
+import dotenv from 'dotenv';
+import { getTimestamp } from '../app';
+
+dotenv.config();
 
 const router = express.Router();
 router.use(bodyParser.json());
+
+type IndicatorData = {
+    name: string;
+    dates: string[];
+    values: number[];
+    source: string;
+    url: string;
+}
+
+type storedData = {
+    [key: string]: IndicatorData;
+}
 
 // // Increase limit for cryptoquant POST
 // router.use(bodyParser.json({ limit: '50mb' }));
 
 let lastUpdated = Date.now();
 
-const getTimestamp = () => {
-    return new Date().toUTCString();
-};
+let storedData: storedData = {};
 
-let storedData = {};
-
-const normalizeDate = (dateString) => {
+const normalizeDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toISOString().split('T')[0]; // This gives only the date part in yyyy-mm-dd
 };
 
-async function fetchCheckOnChain(url, indicator_column_name, storedData) {
+async function fetchCheckOnChain(url: string, indicator_column_name: string, storedData: storedData) {
     try {
         const response = await axios.get(url);
         const htmlContent = response.data;
@@ -32,7 +43,8 @@ async function fetchCheckOnChain(url, indicator_column_name, storedData) {
         // Load HTML content into Cheerio for parsing
         const $ = cheerio.load(htmlContent);
         const scriptContent = $('script').filter((i, script) => {
-            return $(script).html().includes('Plotly.newPlot');
+            const htmlContent = $(script).html()
+            return htmlContent ? htmlContent.includes('Plotly.newPlot') : false;
         }).html();
 
         if (scriptContent) {
@@ -43,7 +55,7 @@ async function fetchCheckOnChain(url, indicator_column_name, storedData) {
                 const jsonData = scriptContent.substring(jsonStartIndex, jsonEndIndex + 4);
                 const jsonObjects = JSON.parse(jsonData);
 
-                jsonObjects.forEach(jsonItem => {
+                jsonObjects.forEach((jsonItem: any) => {
                     if (jsonItem.name === indicator_column_name) {
                         const dates = jsonItem.x.map(normalizeDate);
                         const values = jsonItem.y;
@@ -70,7 +82,7 @@ async function fetchCheckOnChain(url, indicator_column_name, storedData) {
     }
 }
 
-async function fetchWoocharts(name, url, storedData) {
+async function fetchWoocharts(name: string, url: string, storedData: storedData) {
     try {
         const response = await axios.get("https://woocharts.com/bitcoin-macro-oscillator/data/chart.json?1718986908477");
         const json_data = response.data;
@@ -93,7 +105,7 @@ async function fetchWoocharts(name, url, storedData) {
     }
 }
 
-async function fetchLookintobitcoin(name, indicatorName, url, human_url, storedData) {
+async function fetchLookintobitcoin(name: string, indicatorName: string, url: string, human_url: string, storedData: storedData) {
     try {
         const payload = {
             "output":"chart.figure",
@@ -132,7 +144,7 @@ async function fetchLookintobitcoin(name, indicatorName, url, human_url, storedD
     }
 }
 
-async function fetchChainexposed(name, url, storedData) {
+async function fetchChainexposed(name: string, url: string, storedData: storedData) {
     try {
         const response = await axios.get(url);
         const data = response.data;
@@ -142,7 +154,7 @@ async function fetchChainexposed(name, url, storedData) {
         let scriptContent = '';
         $('script').each((i, elem) => {
             const scriptText = $(elem).html();
-            if (scriptText.includes('Plotly.newPlot')) {
+            if (scriptText && scriptText.includes('Plotly.newPlot')) {
                 scriptContent = scriptText;
             }
         });
@@ -157,7 +169,7 @@ async function fetchChainexposed(name, url, storedData) {
         }
 
         const dates = JSON.parse(trace1Match[1]).map(normalizeDate);
-        const values = JSON.parse(trace1Match[2]).map(val => parseFloat(val));
+        const values = JSON.parse(trace1Match[2]).map((val: string) => parseFloat(val));
 
         storedData[name] = {
             name: name,
@@ -215,7 +227,7 @@ cron.schedule('0 */1 * * *', fetchIndicators);
 fetchIndicators();
 
 // Fetch bitcoin price
-bitcoinData = {}
+let bitcoinData: storedData = {}
 const fetchBitcoin = () => {
     fetchCheckOnChain('https://charts.checkonchain.com/btconchain/pricing/pricing_mayermultiple_zscore/pricing_mayermultiple_zscore_light.html', 'Price', bitcoinData);
     lastUpdated = Date.now();
@@ -223,27 +235,28 @@ const fetchBitcoin = () => {
 cron.schedule('0 */1 * * *', fetchBitcoin);
 fetchBitcoin();
 
-// Receive cryptoquant
-router.post('/cryptoquant', (req, res) => {
-    const indicators = req.body;
+// // Receive cryptoquant
+// // Removed for security
+// router.post('/cryptoquant', (req, res) => {
+//     const indicators = req.body;
 
-    indicators.forEach(({ name, data, human_url }) => {
-        const dates = data.map(row => normalizeDate(row.date));
-        const values = data.map(row => row.value);
+//     indicators.forEach(({ name, data, human_url }) => {
+//         const dates = data.map(row => normalizeDate(row.date));
+//         const values = data.map(row => row.value);
 
-        storedData[name] = {
-            name: name,
-            dates: dates,
-            values: values,
-            source: 'Cryptoquant',
-            url: human_url
-        };
+//         storedData[name] = {
+//             name: name,
+//             dates: dates,
+//             values: values,
+//             source: 'Cryptoquant',
+//             url: human_url
+//         };
         
-        console.log(`{${getTimestamp()}} Successfully processed data cryptoquant ${name}`);
-    });
+//         console.log(`{${getTimestamp()}} Successfully processed data cryptoquant ${name}`);
+//     });
 
-    res.status(200).json({"message": "Successfully saved data for cryptoquant!"});
-});
+//     res.status(200).json({"message": "Successfully saved data for cryptoquant!"});
+// });
 
 router.get('/lastUpdated', (req, res) => {
     res.json({ lastUpdated: lastUpdated });
@@ -268,7 +281,7 @@ router.get('/bitcoin', (req, res) => {
 
 router.get('/', (req, res) => {
     const { startDate, endDate } = req.query;
-    let dateMap = {};
+    let dateMap: { [key: string ]: any } = {};
 
     for (const indicatorName in storedData) {
         const indicatorData = storedData[indicatorName];
@@ -293,10 +306,10 @@ router.get('/', (req, res) => {
         return true;
     });
 
-    let averagedData = {};
+    let averagedData: { [key: string]: any } = {};
     filteredDates.forEach(date => {
         const zScores = dateMap[date];
-        const avgZScore = zScores.reduce((acc, val) => acc + val, 0) / zScores.length;
+        const avgZScore = zScores.reduce((acc: number, val: number) => acc + val, 0) / zScores.length;
         averagedData[date] = avgZScore;
     });
 
@@ -334,4 +347,4 @@ router.get('/indicator/:name', (req, res) => {
     res.json(filteredIndicatorData);
 });
 
-module.exports = router;
+export default router;

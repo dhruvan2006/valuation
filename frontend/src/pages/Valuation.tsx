@@ -5,6 +5,15 @@ import { ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
 import DatePicker from '../components/DatePicker';
 import IndicatorPlot from '../components/IndicatorPlot';
 
+type bitcoinData = {
+  dates: Array<string>;
+  values: Array<number>;
+}
+
+type zScoreData = {
+  [key: string]: number;
+}
+
 const indicators = ['AVIV Z-Score', 'MVRV Z-Score', 'STH-MVRV Z-Score', 'LTH-NUPL', 'Mayer Multiple Z', 'SOPR 7D-EMA', 'Reserve Risk (Adjusted)', 'Difficulty Multiple', 'value-days-destroyed-multiple', 'pi_cycle_top_bottom_indicator', 'index', 'mvrv_z',  'MVRV'];//, 'Adjusted_MVRV', 'IFP', 'sma_nupl_mvrv_avg', 'MVRV_STH', 'sharpe_ratio_365', 'Oscillator'];
 
 const getTodayAsString = () => {
@@ -17,16 +26,16 @@ const getTodayAsString = () => {
 }
 
 const Valuation = () => {
-  const [bitcoinData, setBitcoinData] = useState({});
-  const [zScoreData, setZScoreData] = useState({});
+  const [bitcoinData, setBitcoinData] = useState<bitcoinData>({ dates: [], values: [] });
+  const [zScoreData, setZScoreData] = useState<zScoreData>({});
   const [startDate, setStartDate] = useState('2020-01-01');
   const [endDate, setEndDate] = useState(getTodayAsString());
   const [debouncedStartDate, setDebouncedStartDate] = useState(startDate);
   const [debouncedEndDate, setDebouncedEndDate] = useState(endDate);
-  const plotRef = useRef(null);
+  const plotRef = useRef<HTMLDivElement>(null);
 
   // Last updated display
-  const [lastUpdated, setLastUpdated] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState<Date>();
 
   useEffect(() => {
     const fetchLastUpdated = async () => {
@@ -42,9 +51,9 @@ const Valuation = () => {
     fetchLastUpdated();
   }, []);
 
-  const timeAgo = (date) => {
+  const timeAgo = (date: Date) => {
     const now = new Date();
-    const seconds = Math.floor((now - date) / 1000);
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     let interval = seconds / 31536000;
   
     if (interval > 1) {
@@ -97,12 +106,14 @@ const Valuation = () => {
 
   const toggleFullscreen = () => {
     const element = plotRef.current;
-    if (!document.fullscreenElement) {
-      element.requestFullscreen().catch((err) => {
-        console.error('Error attempting to enable full-screen mode:', err.message);
-      });
-    } else {
-      document.exitFullscreen();
+    if (element) {
+      if (!document.fullscreenElement) {
+        element.requestFullscreen().catch((err) => {
+          console.error('Error attempting to enable full-screen mode:', err.message);
+        });
+      } else {
+        document.exitFullscreen();
+      }
     }
   };
 
@@ -129,7 +140,7 @@ const Valuation = () => {
         </div>
         <div className='text-center w-full h-[70vh] relative mb-4'>
           <div className='p-2 absolute top-0 right-0 z-10'>
-            <ArrowsPointingOutIcon className='h-6 w-6  text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen('main-plot')} />
+            <ArrowsPointingOutIcon className='h-6 w-6  text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen()} />
           </div>
           <div className='w-full h-full' ref={plotRef}>
             <Plot

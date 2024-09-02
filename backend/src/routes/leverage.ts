@@ -1,17 +1,14 @@
-const express = require('express');
-const cron = require('node-cron');
-const axios = require('axios');
+import express from 'express';
+import cron from 'node-cron';
+import axios from 'axios';
+import { getTimestamp } from '../app';
 
 const router = express.Router();
 
 let lastUpdated = Date.now();
 
-const getTimestamp = () => {
-    return new Date().toUTCString();
-};
-
 // -------------------------- Start TLX --------------------------
-const tlx = {
+const tlx: { [key: string]: string } = {
     'ETH1L': '0xda08D59CaAdF87c59D56101670B5e023A0593B34',
     'ETH2L': '0x46A0277d53274cAfbb089e9870d2448e4224dAD9',
     'ETH3L': '0xC013551A4c84BBcec4f75DBb8a45a444E2E9bbe7',
@@ -31,7 +28,7 @@ const tlx = {
     'SOL5L': '0xCf81EcA92Fc32F3a1EcFC1c7f5Ab6bCF59795278',
 }
 
-let tlxData = {};
+let tlxData: { [key: string]: any } = {};
 
 const fetchTlx = async () => {
     for (const asset in tlx) {
@@ -53,7 +50,7 @@ fetchTlx();
 
 
 // -------------------------- Start Toros --------------------------
-const toros = {
+const toros: { [key: string]: string } = {
     'ARB:ETHBULL3X': '0xf715724abba480d4d45f4cb52bef5ce5e3513ccc',
     'MATIC:ETHBULL3X': '0x32b1d1bfd4b3b0cb9ff2dcd9dac757aa64d4cb69',
     'OP:ETHBULL3X': '0x32b1d1bfd4b3b0cb9ff2dcd9dac757aa64d4cb69',
@@ -69,7 +66,7 @@ const toros = {
     'OP:SOLLBULL2X': '0x7d3c9c6566375d7ad6e89169ca5c01b5edc15364',
 }
 
-let torosData = {}
+let torosData: { [key: string]: any } = {}
 
 const fetchToros = async () => {
     for (const asset in toros) {
@@ -134,4 +131,4 @@ router.get('/toros/asset/:type', (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

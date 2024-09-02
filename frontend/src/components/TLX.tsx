@@ -1,16 +1,35 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
+import { Data, ScatterData } from 'plotly.js';
 
-const Chart = ({ exchange, assets, name }) => {
+type TLXProps = {
+  assets: Array<string>;
+  name: string;
+}
+
+type AssetPoint = {
+  timestamp: string;
+  price: number;
+}
+
+type AssetData = {
+  [key: string]: Array<AssetPoint>;
+}
+
+type RatioData = {
+  [key: string]: number;
+}
+
+const TLX: React.FC<TLXProps> = ({ assets, name }) => {
   const [selectedAssets, setSelectedAssets] = useState(assets);
-  const [assetData, setAssetData] = useState({});
+  const [assetData, setAssetData] = useState<AssetData>({});
 
   const [sharpeRatios, setSharpeRatios] = useState({});
   const [sortinoRatios, setSortinoRatios] = useState({});
   const [omegaRatios, setOmegaRatios] = useState({});
 
-  const handleCheckboxChange = (event) => {
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = event.target;
     setSelectedAssets((prevSelectedAssets) => 
       checked ? [...prevSelectedAssets, name] : prevSelectedAssets.filter(asset => asset !== name)
@@ -19,7 +38,7 @@ const Chart = ({ exchange, assets, name }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = {};
+      const data: { [key: string]: any } = {};
       for (const asset of selectedAssets) {
         try {
           const response = await axios.get(`/api/leverage/tlx/asset/${asset}`);
@@ -38,9 +57,9 @@ const Chart = ({ exchange, assets, name }) => {
 
   useEffect(() =>  {
     const calculateRatios = () => {
-      const sharpe = {};
-      const sortino = {};
-      const omega = {};
+      const sharpe: RatioData = {};
+      const sortino: RatioData = {};
+      const omega: RatioData = {};
       const threshold = 0;
 
       for (const asset in assetData) {
@@ -72,17 +91,15 @@ const Chart = ({ exchange, assets, name }) => {
     }
   }, [assetData]);
 
-  const plotData = Object.keys(assetData).map(asset => {
-    return {
-      x: assetData[asset].map(point => new Date(point.timestamp)),
-      y: assetData[asset].map(point => point.price),
-      type: 'scatter',
-      mode: 'lines',
-      name: asset,
-    };
-  });
+  const plotData: Data[] = Object.keys(assetData).map(asset => ({
+    x: assetData[asset].map(point => new Date(point.timestamp)),
+    y: assetData[asset].map(point => point.price),
+    type: 'scatter',
+    mode: 'lines',
+    name: asset,
+  }));
 
-  const sharpeRatioData = {
+  const sharpeRatioData: any = {
     x: Object.keys(sharpeRatios),
     y: Object.values(sharpeRatios),
     type: 'bar',
@@ -92,7 +109,7 @@ const Chart = ({ exchange, assets, name }) => {
     }
   };
 
-  const sortinoRatioData = {
+  const sortinoRatioData: any = {
     x: Object.keys(sortinoRatios),
     y: Object.values(sortinoRatios),
     type: 'bar',
@@ -102,7 +119,7 @@ const Chart = ({ exchange, assets, name }) => {
     }
   };
 
-  const omegaRatioData = {
+  const omegaRatioData: any = {
     x: Object.keys(omegaRatios),
     y: Object.values(omegaRatios),
     type: 'bar',
@@ -191,4 +208,4 @@ const Chart = ({ exchange, assets, name }) => {
   );
 }
 
-export default Chart;
+export default TLX;

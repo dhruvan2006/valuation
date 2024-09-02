@@ -1,7 +1,9 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const bodyParser = require('body-parser');
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+import path from 'path';
+import bodyParser from 'body-parser';
+
+import apiRoutes from './routes/api';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -9,7 +11,7 @@ const port = process.env.PORT || 5000;
 // Increase limit for POST /api/valuation/cryptoquant
 app.use(bodyParser.json({limit: '200mb'}));
 
-const getTimestamp = () => {
+export const getTimestamp = () => {
     return new Date().toUTCString();
 };
 
@@ -20,9 +22,9 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Prepend /api to all routes
-app.use('/api', require('./routes/api'))
+app.use('/api', apiRoutes);
 
-app.get('*', (req, res) => {
+app.get('*', (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname + '/dist/index.html'));
 })
 
