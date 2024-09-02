@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronUpIcon } from '@heroicons/react/24/solid';
 
-const ScrollBackToTop = () => {
+const ScrollBackToTop: React.FC = () => {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,

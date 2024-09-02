@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Leverage from './pages/Leverage';
@@ -6,9 +7,9 @@ import ScrollBackToTop from './components/ScrollBackToTop';
 import OptimalLeverage from './pages/OptimalLeverage';
 import NotFound from './pages/NotFound';
 
-const App = () => {
+const App: React.FC = () => {
   return (
-    <BrowserRouter className='bg-black md:px-32'>
+    <BrowserRouter>
       <Navbar />
       <div className='mt-20' />
       <ScrollBackToTop />

@@ -1,4 +1,12 @@
-const DatePicker = ({ label, selectedDate, onChange }) => {
+import React from "react";
+
+type DatePickerProps = {
+  label: string;
+  selectedDate: string;
+  onChange: (newDate: string) => void;
+}
+
+const DatePicker: React.FC<DatePickerProps> = ({ label, selectedDate, onChange }) => {
   return (
     <div className="flex flex-col gap-y-2 flex-1 w-full">
       <label className="text-white ml-1 text-sm">{label}</label>

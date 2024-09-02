@@ -1,7 +1,14 @@
 import React from 'react';
 import { MinusIcon, PlusIcon } from '@heroicons/react/24/solid';
 
-const NumberInput = ({ label, value, onDecrement, onIncrement }) => {
+type NumberInputProps = {
+  label: string;
+  value: number;
+  onDecrement: () => void;
+  onIncrement: () => void;
+}
+
+const NumberInput: React.FC<NumberInputProps> = ({ label, value, onDecrement, onIncrement }) => {
   return (
     <div className='flex flex-col gap-y-2'>
       <label className='text-white ml-1 text-sm'>{label}</label>

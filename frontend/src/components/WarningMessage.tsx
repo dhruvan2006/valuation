@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const WarningMessage = () => {
+const WarningMessage: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -10,7 +10,7 @@ const WarningMessage = () => {
       const hideWarningDateParsed = new Date(hideWarningDate);
       const oneWeekInMillis = 7 * 24 * 60 * 60 * 1000;
 
-      if (currentDate - hideWarningDateParsed >= oneWeekInMillis) {
+      if (currentDate.getTime() - hideWarningDateParsed.getTime() >= oneWeekInMillis) {
         // if a week has passed remove the item from localStorage
         localStorage.removeItem('hideWarningDate');
         setIsVisible(true);

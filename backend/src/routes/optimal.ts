@@ -43,7 +43,7 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ "error": "Ticker not provided" });
     }
 
-    const filePath = path.join(__dirname, '..', 'data', `${ticker}-USD.csv`);
+    const filePath = path.join(__dirname, '../../', 'data', `${ticker}-USD.csv`);
 
     try {
         const data = await readCsv(filePath);

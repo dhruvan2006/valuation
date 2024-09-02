@@ -3,9 +3,29 @@ import axios from 'axios';
 import Plot from 'react-plotly.js';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
 
-const IndicatorPlot = ({ indicator, bitcoinData, startDate, endDate }) => {
-  const [indicatorData, setIndicatorData] = useState(null);
-  const plotRef = useRef(null);
+type bitcoinData = {
+  dates: Array<string>;
+  values: Array<number>;
+}
+
+type IndicatorPlotProps = {
+  indicator: string;
+  bitcoinData: bitcoinData;
+  startDate: string;
+  endDate: string;
+}
+
+type IndicatorData = {
+  name: string;
+  dates: Array<string>;
+  values: Array<number>;
+  source: string;
+  url: string;
+}
+
+const IndicatorPlot: React.FC<IndicatorPlotProps> = ({ indicator, bitcoinData, startDate, endDate }) => {
+  const [indicatorData, setIndicatorData] = useState<IndicatorData>();
+  const plotRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const prevDatesRef = useRef({ startDate, endDate });
@@ -50,12 +70,14 @@ const IndicatorPlot = ({ indicator, bitcoinData, startDate, endDate }) => {
 
   const toggleFullscreen = () => {
     const element = plotRef.current;
-    if (!document.fullscreenElement) {
-      element.requestFullscreen().catch((err) => {
-        console.error('Error attempting to enable full-screen mode:', err.message);
-      });
-    } else {
-      document.exitFullscreen();
+    if (element) {
+      if (!document.fullscreenElement) {
+        element.requestFullscreen().catch((err: Error) => {
+          console.error('Error attempting to enable full-screen mode:', err.message);
+        });
+      } else {
+        document.exitFullscreen();
+      }
     }
   };
 
@@ -66,7 +88,7 @@ const IndicatorPlot = ({ indicator, bitcoinData, startDate, endDate }) => {
       <div className='p-4 flex justify-between items-center'>
         <div className='h-6 w-6' />
         <h2 className='font-semibold underline underline-offset-4 text-blue-500 hover:text-blue-600'>{indicator}</h2>
-        <ArrowsPointingOutIcon className='h-5 w-5 text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen(`plot-${indicatorData.name}`)} />
+        <ArrowsPointingOutIcon className='h-5 w-5 text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen()} />
       </div>
       <div className='w-full h-96 mb-3' ref={plotRef}>
         <div className='w-full h-full' />
@@ -90,7 +112,7 @@ const IndicatorPlot = ({ indicator, bitcoinData, startDate, endDate }) => {
           <a href={indicatorData.url} target='_blank' referrerPolicy='no-referrer'><img alt='Cryptoquant Logo' src='/cryptoquant.png' className='h-6 w-6' /></a>
         )}
         <h2 className='font-semibold'><a href={indicatorData.url} target='_blank' referrerPolicy='no-referrer' className='underline underline-offset-4 text-blue-500 hover:text-blue-600'>{indicatorData.name}</a></h2>
-        <ArrowsPointingOutIcon className='h-5 w-5 text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen(`plot-${indicatorData.name}`)} />
+        <ArrowsPointingOutIcon className='h-5 w-5 text-zinc-300 hover:text-white transition duration-200' onClick={() => toggleFullscreen()} />
       </div>
       <div className='w-full h-[60vh] mb-3' ref={plotRef}>
         <Plot
@@ -116,7 +138,6 @@ const IndicatorPlot = ({ indicator, bitcoinData, startDate, endDate }) => {
             }
           ]}
           layout={{
-            title: indicatorData.title,
             xaxis: { title: 'Date' },
             yaxis: { title: 'Bitcoin' , type: 'log', side: 'left' },
             yaxis2: { title: indicatorData.name, overlaying: 'y', side: 'right' },
