@@ -1,16 +1,21 @@
-const express = require('express');
-const csv = require('csv-parser')
-const fs = require('fs');
-const path = require('path');
-const bodyParser = require('body-parser');
-const { parse } = require('date-fns');
+import express from 'express';
+import csv from 'csv-parser';
+import fs from 'fs';
+import path from 'path';
+import bodyParser from 'body-parser';
+import { parse } from 'date-fns';
 
 const router = express.Router();
 router.use(bodyParser.json());
 
-const readCsv = (filePath) => {
+type CsvRow = {
+    Date: string;
+    Close: string;
+}
+
+const readCsv = (filePath: string): Promise<CsvRow[]> => {
     return new Promise((resolve, reject) => {
-        const results = [];
+        const results: CsvRow[] = [];
         const stream = fs.createReadStream(filePath);
 
         stream.on('error', (err) => {
@@ -25,7 +30,14 @@ const readCsv = (filePath) => {
 };
 
 router.post('/', async (req, res) => {
-    const { ticker, start_date='2023-01-01', end_date='2024-06-19', lower_lev=0., upper_lev=5., fees=0. } = req.body;
+    const { ticker, start_date='2023-01-01', end_date='2024-06-19', lower_lev=0., upper_lev=5., fees=0. } = req.body as {
+        ticker: string;
+        start_date?: string;
+        end_date?: string;
+        lower_lev?: number;
+        upper_lev?: number;
+        fees?: number;
+    };
 
     if (!ticker) {
         return res.status(400).json({ "error": "Ticker not provided" });
@@ -49,7 +61,7 @@ router.post('/', async (req, res) => {
         const deltas = closePrices.map((price, index) => {
             if (index == 0) return null;
             return (price - closePrices[index - 1]) / closePrices[index - 1];
-        }).slice(1);
+        }).slice(1) as number[];
 
         const mu = deltas.reduce((acc, val) => acc + val, 0) / deltas.length;
         const std = Math.sqrt(deltas.reduce((acc, val) => acc + Math.pow(val - mu, 2), 0) / (deltas.length - 1));
@@ -74,7 +86,7 @@ router.post('/', async (req, res) => {
             "x": dates,
             "y": closePrices
         });
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).json({ "error": err.message });
     }
 });
@@ -88,4 +100,4 @@ router.get('/pdf', (req, res) => {
     });
 });
 
-module.exports = router;
+export default router;
