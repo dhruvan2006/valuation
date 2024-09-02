@@ -1,8 +1,8 @@
-# Dhruvan Gnanadhandayuthapani
+# [Dhruvan Gnanadhandayuthapani](https://www.gnanadhandayuthapani.com)
 
 This web app aims to piece all the scattered analyses performed by me in one place. 
 
-Access the live website [here](https://www.gnanadhandayuthapani.com).
+Access the live website [**here**](https://www.gnanadhandayuthapani.com).
 
 ## Installation
 
@@ -12,32 +12,19 @@ git clone https://github.com/dhruvan2006/website.git
 cd website
 ```
 ### Backend
-2. Setup and run the Flask server
+2. Setup and run the Express server
 ```bash
-cd flask-backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-flask run
-```
-3. Setup and run the Express server
-```bash
-cd express-backend
+cd backend
 npm install
-node app.js
+npm run build
+npm start
 ```
 ### Frontend
-4. Navigate to the frontend
+3. Setup and run the React frontend
 ```bash
 cd frontend
-```
-5. Install dependencies
-```bash
 npm install
-```
-6. Start the development server
-```bash
-npm start
+npm run dev
 ```
 
 ## Usage
